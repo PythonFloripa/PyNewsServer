@@ -1,2 +1,2 @@
 # pynewsserver
-Serviço de Noticas e Bibliotecas Pynwes
+Serviço de Noticas e Bibliotecas PyNews
