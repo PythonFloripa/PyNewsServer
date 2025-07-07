@@ -62,54 +62,26 @@ Serviço de Noticas e Bibliotecas PyNews
 
 ```mermaid
 sequenceDiagram
-    participant Cliente as Cliente (Frontend/Postman)
-    participant RouterAuth as app/routers/authentication.py
-    participant ServiceAuth as app/services/auth.py
-    participant DBService as app/services/database.py
-    participant BancoDeDados as Banco de Dados
-    participant RouterNews as app/routers/news.py
-    participant ServiceNews as app/services/news.py
+    participant Cliente as Cliente
+    participant ServicoAutenticacao as Serviço de Autenticação
+    participant ServicoNoticias as Serviço de Notícias
 
     activate Cliente
-    Cliente->>RouterAuth: POST /auth/login (email, senha)
-    activate RouterAuth
-    RouterAuth->>ServiceAuth: validate_user_credentials(email, senha)
-    activate ServiceAuth
-    ServiceAuth->>BancoDeDados: Buscar usuário por email
-    activate BancoDeDados
-    BancoDeDados-->>ServiceAuth: Retorna hashed_password
-    deactivate BancoDeDados
-    ServiceAuth->>ServiceAuth: Verificar senha (bcrypt.checkpw)
-    alt Credenciais Válidas
-        ServiceAuth->>ServiceAuth: Gerar JWT
-        ServiceAuth-->>RouterAuth: Retorna JWT (200 OK)
-    else Credenciais Inválidas
-        ServiceAuth-->>RouterAuth: Retorna erro de autenticação (401 Unauthorized)
-    end
-    deactivate ServiceAuth %% Desativação única após o bloco alt/else
-    deactivate RouterAuth
+    Cliente->>ServicoAutenticacao: Solicitar Login (credenciais)
+    activate ServicoAutenticacao
+    ServicoAutenticacao-->>Cliente: Retornar JWT (Token de Acesso)
+    deactivate ServicoAutenticacao
 
-    Cliente->>RouterNews: POST /news (dados da notícia, Authorization: Bearer JWT)
-    activate RouterNews
-    RouterNews->>ServiceAuth: Dependência: get_current_user(JWT)
-    activate ServiceAuth
-    ServiceAuth->>ServiceAuth: Validar JWT e obter user_id
-    ServiceAuth-->>RouterNews: Retorna user_id
-    deactivate ServiceAuth
-    RouterNews->>ServiceNews: create_news(user_id, dados_noticia)
-    activate ServiceNews
-    ServiceNews->>DBService: get_db_session()
-    activate DBService
-    DBService-->>ServiceNews: Retorna sessão do DB
-    deactivate DBService
-    ServiceNews->>BancoDeDados: Salvar nova notícia (INSERT)
-    activate BancoDeDados
-    BancoDeDados-->>ServiceNews: Retorna notícia salva
-    deactivate BancoDeDados
-    ServiceNews-->>RouterNews: Retorna notícia criada
-    deactivate ServiceNews
-    RouterNews-->>Cliente: 201 Created (Notícia)
-    deactivate RouterNews
+    Cliente->>ServicoNoticias: Solicitar Criação de Notícia (dados da notícia, JWT)
+    activate ServicoNoticias
+    ServicoNoticias->>ServicoAutenticacao: Validar JWT (interno)
+    activate ServicoAutenticacao
+    ServicoAutenticacao-->>ServicoNoticias: JWT Válido / User ID
+    deactivate ServicoAutenticacao
+    ServicoNoticias-->>Cliente: Notícia Criada (201 Created)
+    deactivate ServicoNoticias
+    deactivate Cliente
+ 
 
 ```
 
