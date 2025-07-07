@@ -64,6 +64,7 @@ Serviço de Noticas e Bibliotecas PyNews
 sequenceDiagram
     participant Cliente as Cliente (Frontend/Postman)
     participant RouterAuth as app/routers/authentication.py
+    participant ServiceAuth as app/services/auth.py
     participant DBService as app/services/database.py
     participant BancoDeDados as Banco de Dados
     participant RouterNews as app/routers/news.py
@@ -81,16 +82,12 @@ sequenceDiagram
     ServiceAuth->>ServiceAuth: Verificar senha (bcrypt.checkpw)
     alt Credenciais Válidas
         ServiceAuth->>ServiceAuth: Gerar JWT
-        ServiceAuth-->>RouterAuth: Retorna JWT
-        deactivate ServiceAuth
-        RouterAuth-->>Cliente: 200 OK (JWT)
-        deactivate RouterAuth
+        ServiceAuth-->>RouterAuth: Retorna JWT (200 OK)
     else Credenciais Inválidas
-        ServiceAuth-->>RouterAuth: Retorna erro de autenticação
-        deactivate ServiceAuth
-        RouterAuth-->>Cliente: 401 Unauthorized
-        deactivate RouterAuth
+        ServiceAuth-->>RouterAuth: Retorna erro de autenticação (401 Unauthorized)
     end
+    deactivate ServiceAuth %% Desativação única após o bloco alt/else
+    deactivate RouterAuth
 
     Cliente->>RouterNews: POST /news (dados da notícia, Authorization: Bearer JWT)
     activate RouterNews
