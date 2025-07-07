@@ -26,23 +26,23 @@ Serviço de Noticas e Bibliotecas PyNews
     fastapi_news_service/
     │
     ├── app/
-    │   ├── init.py           # Marca 'app' como um pacote Python
+    │   ├── __init__.py           # Marca 'app' como um pacote Python
     │   ├── main.py               # Ponto de entrada principal da aplicação FastAPI e inclusão dos routers
     │   ├── schemas.py            # Definições dos modelos Pydantic para todas as entidades (User, News, Library, Subscription)
     │   │
     │   ├── services/
-    │   │   ├── init.py       # Marca 'services' como um pacote Python
+    │   │   ├── __init__.py       # Marca 'services' como um pacote Python
     │   │   ├── database.py       # Lógica de conexão e gerenciamento de sessão com o banco de dados (SQLAlchemy/SQLModel)
     │   │   ├── auth.py           # Lógica de negócio para autenticação (hashing de senhas, geração/validação de JWT)
     │   │
     │   └── routers/
-    │       ├── init.py       # Marca 'routers' como um pacote Python
+    │       ├── __init__.py       # Marca 'routers' como um pacote Python
     │       ├── news.py           # Definição dos endpoints da API para o módulo de Notícias (/news)
     │       ├── libraries.py      # Definição dos endpoints da API para o módulo de Libraries (/libraries)
     │       └── authentication.py # Definição dos endpoints da API para o módulo de Autenticação (/auth)
     │
     ├── test/                     # Diretório para testes unitários 
-    │   └── init.py
+    │   └── __init__.py
     │   └── test_auth.py
     │   └── test_news.py
     │   └── test_libraries.py
