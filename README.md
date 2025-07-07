@@ -64,7 +64,6 @@ Serviço de Noticas e Bibliotecas PyNews
 sequenceDiagram
     participant Cliente as Cliente (Frontend/Postman)
     participant RouterAuth as app/routers/authentication.py
-    participant ServiceAuth as app/services/auth.py
     participant DBService as app/services/database.py
     participant BancoDeDados as Banco de Dados
     participant RouterNews as app/routers/news.py
