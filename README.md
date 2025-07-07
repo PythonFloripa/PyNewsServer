@@ -7,6 +7,10 @@ Serviço de Noticas e Bibliotecas PyNews
     - Python 
         - FastAPI 
         - Pydantic
+        - Poetry
+        - Sqlite3
+        - Orjson
+        - ruff (linter)
 
 ## 🚀 Recursos e Funcionalidades
     Endpoints para CRUD de noticias selecionadas pela comunidade. 
@@ -18,50 +22,99 @@ Serviço de Noticas e Bibliotecas PyNews
 ---
 
 ### Schema do Servidor 
-    ```
+```
     fastapi_news_service/
     │
     ├── app/
-    │   ├── __init__.py
-    │   ├── main.py            # Ponto de entrada da aplicação FastAPI e inclusão dos routers
-    │   ├── models.py         # Modelos da base de dados ( User, News, NewsLibrary)
-    │   ├── schemas.py        # Esquemas Pydantic para todas as entidades (News, NewsLibrary, User, Token)
-    │   ├── crud.py           # Funções CRUD para todas as entidades
-    │   ├── auth.py           # Lógica de autenticação (JWT) e dependências (get_current_user)
-    │   ├── config.py         # Carregamento de configurações a partir do .env
-    │   ├── database.py       # Configuração da conexão com o banco de dados
+    │   ├── init.py           # Marca 'app' como um pacote Python
+    │   ├── main.py               # Ponto de entrada principal da aplicação FastAPI e inclusão dos routers
+    │   ├── schemas.py            # Definições dos modelos Pydantic para todas as entidades (User, News, Library, Subscription)
     │   │
-    │   └── routers/
-    │       ├── __init__.py
-    │       ├── news.py         # Endpoints para /news (receber do scraper, buscar)
-    │       ├── libraries.py    # Endpoints para /libraries (criar/gerenciar bibliotecas de notícias)
-    │       └── authentication.py        # Endpoint para /login (autenticação do usuário)
+    │   ├── services/
+    │   │   ├── init.py       # Marca 'services' como um pacote Python
+    │   │   ├── database.py       # Lógica de conexão e gerenciamento de sessão com o banco de dados (SQLAlchemy/SQLModel)
+    │   │   ├── auth.py           # Lógica de negócio para autenticação (hashing de senhas, geração/validação de JWT)
+    │   │
+    │   └── routers/
+    │       ├── init.py       # Marca 'routers' como um pacote Python
+    │       ├── news.py           # Definição dos endpoints da API para o módulo de Notícias (/news)
+    │       ├── libraries.py      # Definição dos endpoints da API para o módulo de Libraries (/libraries)
+    │       └── authentication.py # Definição dos endpoints da API para o módulo de Autenticação (/auth)
     │
-    ├── .env                      # Arquivo para variáveis de ambiente
-    ├── .gitignore
-    ├── requirements.txt
-    └── README.md
-    ```
+    ├── test/                     # Diretório para testes unitários 
+    │   └── init.py
+    │   └── test_auth.py
+    │   └── test_news.py
+    │   └── test_libraries.py
+    │
+    ├── .env                      # Arquivo para variáveis de ambiente (ex: credenciais do banco de dados, chave secreta JWT)
+    ├── .gitignore                # Regras para ignorar arquivos e diretórios no controle de versão (Git)
+    ├── requirements.txt          # Lista das dependências Python do projeto
+    ├── Dockerfile                # Definição para construir a imagem Docker da aplicação
+    ├── docker-compose.yaml       # Configuração para orquestrar serviços Docker (API, banco de dados)
+    ├── Makefile                  # Utilitário para automação de tarefas (build, deploy, etc., incluindo scripts para Kubernetes)
+    ├── pyproject.toml            # Configuração de projeto Python (Poetry)
+    ├── README.md                 # Este arquivo: Visão geral do projeto, instruções de configuração e uso
+    └── .vscode/                  # Configurações específicas para o ambiente de desenvolvimento VS Code
+       ├── settings.json          # Configurações de formatação, linting, etc.
+       └── launch.json            # Configurações para depuração da aplicação
+```
+
 ```mermaid
-graph TD
-    subgraph "Cliente"
-        Client[Usuário / Aplicação Cliente]
+sequenceDiagram
+    participant Cliente as Cliente (Frontend/Postman)
+    participant RouterAuth as app/routers/authentication.py
+    participant ServiceAuth as app/services/auth.py
+    participant DBService as app/services/database.py
+    participant BancoDeDados as Banco de Dados
+    participant RouterNews as app/routers/news.py
+    participant ServiceNews as app/services/news.py
+
+    activate Cliente
+    Cliente->>RouterAuth: POST /auth/login (email, senha)
+    activate RouterAuth
+    RouterAuth->>ServiceAuth: validate_user_credentials(email, senha)
+    activate ServiceAuth
+    ServiceAuth->>BancoDeDados: Buscar usuário por email
+    activate BancoDeDados
+    BancoDeDados-->>ServiceAuth: Retorna hashed_password
+    deactivate BancoDeDados
+    ServiceAuth->>ServiceAuth: Verificar senha (bcrypt.checkpw)
+    alt Credenciais Válidas
+        ServiceAuth->>ServiceAuth: Gerar JWT
+        ServiceAuth-->>RouterAuth: Retorna JWT
+        deactivate ServiceAuth
+        RouterAuth-->>Cliente: 200 OK (JWT)
+        deactivate RouterAuth
+    else Credenciais Inválidas
+        ServiceAuth-->>RouterAuth: Retorna erro de autenticação
+        deactivate ServiceAuth
+        RouterAuth-->>Cliente: 401 Unauthorized
+        deactivate RouterAuth
     end
 
-    subgraph "Serviços da API"
-        Auth["Auth </br> (Autenticação e Autorização)"]
-        Schema["Schema </br> (Validação de Dados Pydantic)"]
-        News["News </br> (Endpoint /news)"]
-        Library["Library </br> (Endpoint /libraries)"]
-    end
+    Cliente->>RouterNews: POST /news (dados da notícia, Authorization: Bearer JWT)
+    activate RouterNews
+    RouterNews->>ServiceAuth: Dependência: get_current_user(JWT)
+    activate ServiceAuth
+    ServiceAuth->>ServiceAuth: Validar JWT e obter user_id
+    ServiceAuth-->>RouterNews: Retorna user_id
+    deactivate ServiceAuth
+    RouterNews->>ServiceNews: create_news(user_id, dados_noticia)
+    activate ServiceNews
+    ServiceNews->>DBService: get_db_session()
+    activate DBService
+    DBService-->>ServiceNews: Retorna sessão do DB
+    deactivate DBService
+    ServiceNews->>BancoDeDados: Salvar nova notícia (INSERT)
+    activate BancoDeDados
+    BancoDeDados-->>ServiceNews: Retorna notícia salva
+    deactivate BancoDeDados
+    ServiceNews-->>RouterNews: Retorna notícia criada
+    deactivate ServiceNews
+    RouterNews-->>Cliente: 201 Created (Notícia)
+    deactivate RouterNews
 
-    %% Fluxo de Interação
-    Client -->Auth
-    Auth ----> Client
-    Client ----> News
-    Client ----> Library
-    News ----> Schema
-    Library ----> Schema
 ```
 
 ## ⚙️ Como Rodar
