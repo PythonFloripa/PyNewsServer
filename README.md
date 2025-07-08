@@ -74,10 +74,6 @@ sequenceDiagram
 
     Cliente->>ServicoNoticias: Solicitar Criação de Notícia (dados da notícia, JWT)
     activate ServicoNoticias
-    ServicoNoticias->>ServicoAutenticacao: Validar JWT (interno)
-    activate ServicoAutenticacao
-    ServicoAutenticacao-->>ServicoNoticias: JWT Válido / User ID
-    deactivate ServicoAutenticacao
     ServicoNoticias-->>Cliente: Notícia Criada (201 Created)
     deactivate ServicoNoticias
     deactivate Cliente
