@@ -80,6 +80,56 @@ sequenceDiagram
  
 
 ```
+### Schema do banco de dados 
+```mermaid
+  erDiagram
+    users {
+        integer id PK
+        string  username 
+        string  email 
+        string  password
+    }
+    news {
+        integer id PK
+        string  title 
+        string  content
+        string  category
+        string  source_url
+        string  social_media_url
+        string  likes
+        datetime created_at 
+        datetime updated_at
+        integer user_id FK
+        integer library_id FK
+        
+    }
+    libraries {
+        integer id PK
+        string  library_name 
+        string  releases_url   
+        string  logo
+        string  fixed_release_url
+        string  releases_urls_list
+        integer user_id FK
+    }
+    tags {
+        integer id PK
+        string  name 
+    }
+    Subscription {
+        integer id PK
+        string  email 
+    }
+    users ||--o{ news : publishes
+    users ||--o{ libraries : manages
+    news }o--|| libraries : relates_to
+
+    news }o--o{ tags : covers
+    Subscription }o--o{ libraries : follows
+    Subscription }o--o{ tags : tracks
+```
+ 
+
 
 ## ⚙️ Como Rodar
     [TBD]
