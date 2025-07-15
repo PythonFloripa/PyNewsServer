@@ -82,12 +82,168 @@ sequenceDiagram
 ```
 
 ## ⚙️ Como Rodar
-    [TBD]
+
+### 📋 Pré-requisitos
+- Docker e Docker Compose instalados
+- Git (para clonar o repositório)
+
+### 🚀 Início Rápido
+
+1. **Clone o repositório:**
+   ```bash
+   git clone <repository-url>
+   cd PyNewsServer
+   ```
+
+2. **Configure as variáveis de ambiente (opcional):**
+   ```bash
+   cp .env.example .env
+   # Edite o arquivo .env conforme necessário
+   ```
+
+3. **Inicie o serviço:**
+   ```bash
+   docker-compose up -d
+   ```
+
+4. **Acesse a aplicação:**
+   - API: http://localhost:8000
+   - Documentação Swagger: http://localhost:8000/docs
+   - Health Check: http://localhost:8000/api/healthcheck
+
 ## 🧩 Configuração Inicial
 
-### ▶️ Guia de Execução Dev 
+### ▶️ Guia de Execução para Desenvolvimento
 
-### ▶️ Guia de Execução Prod
+#### Usando Docker (Recomendado)
+```bash
+# Construir e iniciar em modo desenvolvimento
+docker-compose up --build
+
+# Ver logs em tempo real
+docker-compose logs -f pynews-api
+
+# Parar o serviço
+docker-compose down
+```
+
+#### Usando Poetry (Local)
+```bash
+# Instalar dependências
+poetry install
+
+# Ativar ambiente virtual
+poetry shell
+
+# Rodar a aplicação
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+# Rodar testes
+poetry run pytest
+
+# Linting
+poetry run ruff check .
+poetry run ruff format .
+```
+
+### ▶️ Guia de Execução para Produção
+
+```bash
+# Construir imagem para produção
+docker-compose build --target production
+
+# Iniciar em modo produção
+docker-compose up -d
+
+# Verificar status dos containers
+docker-compose ps
+
+# Ver logs
+docker-compose logs pynews-api
+
+# Atualizar aplicação
+docker-compose pull
+docker-compose up -d --force-recreate
+```
+
+### 🔧 Comandos Úteis
+
+#### Usando Makefile (Recomendado)
+```bash
+# Ver todos os comandos disponíveis
+make help
+
+# Setup completo do projeto
+make setup
+
+# Ambiente de desenvolvimento
+make dev
+
+# Construir e iniciar
+make build
+make up
+
+# Ver logs
+make logs
+
+# Executar testes
+make test
+make test-cov
+
+# Linting e formatação
+make lint
+make format
+
+# Verificar saúde da API
+make health
+
+# Parar serviços
+make down
+
+# Limpeza completa
+make clean
+```
+
+#### Comandos Docker Diretos
+```bash
+# Entrar no container
+docker-compose exec pynews-api bash
+
+# Reiniciar apenas o serviço da API
+docker-compose restart pynews-api
+
+# Verificar health check
+curl http://localhost:8000/api/healthcheck
+
+# Parar e remover todos os containers e volumes
+docker-compose down -v
+```
+
+### 🛠️ Desenvolvimento
+
+#### Estrutura de Testes
+```bash
+# Rodar todos os testes
+poetry run pytest
+
+# Rodar testes com coverage
+poetry run pytest --cov=app
+
+# Rodar testes específicos
+poetry run pytest tests/test_auth.py
+```
+
+#### Linting e Formatação
+```bash
+# Verificar código
+poetry run ruff check .
+
+# Formatar código
+poetry run ruff format .
+
+# Fix automático de problemas
+poetry run ruff check . --fix
+```
 
  
 ## referencias 
