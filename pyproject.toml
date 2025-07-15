@@ -1,0 +1,59 @@
+[tool.poetry]
+name = "pynewsserver"
+version = "0.1.0"
+description = ""
+authors = [
+    "Daniel Soares Martins <daniel@soaresmartins.com>",
+]
+readme = "README.md"
+packages = [{ include = "main.py", from = "app" }]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115.8"
+orjson = "^3.10.15"
+uvicorn = "^0.22.0"
+httpx = "^0.28.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.2"
+pytest-asyncio = "^0.25.3"
+pytest-cov = "^6.2.1"
+taskipy = "^1.13.0"
+ruff = "^0.6.2"
+python-dotenv = {extras = ["cli"], version = "^1.0.1"}
+behave = "^1.2.6"
+factory-boy = "^3.3.3"
+
+[tool.pytest.ini_options]
+addopts = '-p no:warnings'
+asyncio_default_fixture_loop_scope = "function"
+asyncio_mode = "auto"
+log_cli = true
+log_cli_level = 'INFO'
+pythonpath = "."
+
+[tool.ruff]
+line-length = 80
+
+[tool.ruff.lint]
+preview = true
+select = ['I', 'F', 'E', 'W', 'PL', 'PT']
+ignore = ["PLR2004"]
+
+[tool.ruff.format]
+preview = true
+quote-style = 'double'
+
+[tool.taskipy.tasks]
+lint = 'ruff check . && ruff check . --diff'
+format = 'ruff check . --fix && ruff format .'
+run = 'dotenv -f .env run uvicorn app.main:app --host 0.0.0.0 --port 8888 --lifespan on'
+run_docker = 'docker run --entrypoint uvicorn concilia-back-costumers app.main:app --host 0.0.0.0 --port 8000 --lifespan on'
+pre_test = 'task lint'
+test = 'dotenv -f .env run pytest -s -x --cov=app -vv'
+post_test = 'coverage html'
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
