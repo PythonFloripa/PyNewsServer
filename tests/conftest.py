@@ -5,10 +5,13 @@ from unittest.mock import AsyncMock, patch
 import pytest
 import pytest_asyncio
 from fastapi import FastAPI
+from fastapi.testclient import TestClient
 from httpx import ASGITransport, AsyncClient
-
+from sqlmodel import Field, Session, SQLModel, create_engine
+from sqlmodel.pool import StaticPool
 
 from app.main import app
+from app.services.database.database import get_session 
 
 
 @pytest.fixture
@@ -23,44 +26,64 @@ def test_app() -> FastAPI:
     return app
 
 
-@pytest_asyncio.fixture(scope='function')
-async def mongodb_client():
-    """Create a MongoDB client for the test."""
-    mongodb_url = os.getenv('MONGODB_URL', 'mongodb://localhost:27017')
-    return AsyncIOMotorClient(mongodb_url)
-
-
-@pytest_asyncio.fixture(scope='function')
-async def test_database(mongodb_client):
-    """Create a test database connection with test collections."""
-    mongodb_database = os.getenv('MONGODB_DB_CLIENTS', 'test_database')
-    db = mongodb_client[mongodb_database]
-
-    # Clean up before each test
-    await db.client.drop_database(mongodb_database)
-
-    try:
-        yield db
-    finally:
-        # Clean up after each test
-        await db.client.drop_database(mongodb_database)
-
-
-@pytest_asyncio.fixture(scope='function')
-async def async_client(test_app: FastAPI, test_database) -> AsyncGenerator:
-    """Create an async client for testing."""
-    # Mock the authorization dependencies and schema validation
-    mock_database = AsyncMock()
-    mock_database.client.value = test_database
-
-    async with AsyncClient(
-        transport=ASGITransport(app=test_app), base_url='http://test'
-    ) as client:
-        yield client
-
-
 @pytest.fixture
 def mock_headers():
     return {
         'header1': 'value1',
     }
+
+class Test(SQLModel, table=True):
+    """
+    Modelo de teste para o banco de dados em memória.
+    Representa uma tabela simples para operações de CRUD.
+    """
+    id: int | None = Field(default=None, primary_key=True)
+    test_index_string: str = Field(default='default_index', index=True)
+    test_string: str = Field(default='test_string', index=False)
+
+
+# Nova fixture que retorna a CLASSE Test
+@pytest.fixture(name="test_model_class")
+def test_model_class_fixture():
+    """
+    Fornece a classe SQLModel 'Test' para os testes,
+    evitando a necessidade de importá-la diretamente.
+    """
+    return Test
+
+
+@pytest.fixture(name="session")
+def session_fixture():
+    ###  create_engine("sqlite://",... ) creates an in-memory SQLite db 
+    engine = create_engine(
+        "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
+    )
+    
+    SQLModel.metadata.create_all(engine)
+    with Session(engine) as session:
+        yield session
+ 
+@pytest.fixture(name="client")
+def client_fixture(session: Session,  test_app: FastAPI):
+    def get_session_override():
+        return session
+    test_app.dependency_overrides[get_session] = get_session_override
+    client = TestClient(test_app)
+    yield client
+    test_app.dependency_overrides.clear()
+
+
+@pytest_asyncio.fixture(name="async_client", scope='function')
+async def async_client_fixture(test_app: FastAPI, session: Session) -> AsyncGenerator:
+    """
+    Cria um cliente assíncrono para testes de unidade,
+    garantindo que a sessão do banco de dados em memória seja utilizada.
+    """
+    def get_session_override():
+        yield session 
+    test_app.dependency_overrides[get_session] = get_session_override
+    async with AsyncClient(
+        transport=ASGITransport(app=test_app), base_url='http://test'
+    ) as client:
+        yield client
+    test_app.dependency_overrides.clear()
