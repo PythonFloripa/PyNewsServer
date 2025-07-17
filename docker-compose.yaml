@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  pynews-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: pynews-server
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/server
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  default:
+    name: pynews-network
