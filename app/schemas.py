@@ -4,7 +4,23 @@ from typing import List
 from enum import Enum
 
 
-# Subscription Class
+## User Class
+class User(BaseModel):
+    username: str
+    full_name: str
+    email: str
+
+class UserInDB(User):
+    password: str  # Apenas interno, não retorna na API
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: str | None = None
+
+## Subscription Class
 class TagEnum(str, Enum):
     bug_fix = "bug_fix"
     update = "update"
@@ -16,7 +32,7 @@ class Subscription(BaseModel):
     tags: List[TagEnum]
     libraries_list: List[str]
 
-# News
+## News
 class News(BaseModel):
     description: str
     tag: str
