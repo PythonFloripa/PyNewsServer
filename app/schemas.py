@@ -4,7 +4,7 @@ from typing import List
 from enum import Enum
 
 
-# Subscription
+# Subscription Class
 class TagEnum(str, Enum):
     bug_fix = "bug_fix"
     update = "update"
