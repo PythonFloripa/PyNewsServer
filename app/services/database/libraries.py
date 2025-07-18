@@ -6,3 +6,4 @@ class Libraries(SQLModel, table=True):
     user_email: str
     releases_url: str
     logo: str
+    community_id: int | None = Field(default=None, foreign_key="communities.id")
