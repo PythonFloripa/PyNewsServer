@@ -1,38 +1,58 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from app.services import auth, database
-from app.schemas import Token, TokenData, User
+from app.services import auth
+from app.services.database import get_community_by_username # Atualizar após banco de dados
+from app.schemas import Token, TokenPayload, Community
+from app.services.auth import ACCESS_TOKEN_EXPIRE_MINUTES
 import jwt
+from jwt.exceptions import InvalidTokenError
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/authentication/token")
 
-router = APIRouter(prefix="/authentication")
+def setup():
+    router = APIRouter(prefix='/authentication', tags=['authentication'])
 
-def authenticate_user(username: str, password: str):
-    db_user = database.get_community_by_username(username)
-    if not db_user or not auth.verify_password(password, db_user.password):
-        return None
-    return db_user
+    def authenticate_community(username: str, password: str):
+        # Valida se o usuário existe e se a senha está correta
+        db_user = get_community_by_username(username)
+        if not db_user or not auth.verify_password(password, db_user.password):
+            return None
+        return db_user
 
-@router.post("/token", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciais inválidas")
-    token = auth.create_access_token(data={"sub": user.username})
-    return {"access_token": token, "token_type": "bearer"}
+    @router.post("/token", response_model=Token)
+    async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+        # Rota de login: valida credenciais e retorna token JWT
+        community = authenticate_community(form_data.username, form_data.password)
+        if not community:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Credenciais inválidas"
+            )
+        payload = TokenPayload(sub=community.username)
+        token = auth.create_access_token(data=payload)
+        return {
+            "access_token": token,
+            "token_type": "Bearer",
+            "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60  # Convertido para segundos
+        }
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    from jwt.exceptions import InvalidTokenError
-    creds_exc = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido", headers={"WWW-Authenticate": "Bearer"})
-    try:
-        payload = jwt.decode(token, auth.SECRET_KEY, algorithms=[auth.ALGORITHM])
-        username: str = payload.get("sub")
-        if not username:
+    @router.get("/me", response_model=Community)
+    async def get_current_community(token: str = Depends(oauth2_scheme)):
+        # Rota protegida: retorna dados do usuário atual com base no token
+        creds_exc = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        try:
+            payload_dict = jwt.decode(token, auth.SECRET_KEY, algorithms=[auth.ALGORITHM])
+            payload = TokenPayload(**payload_dict)
+        except (InvalidTokenError, ValueError):
             raise creds_exc
-    except InvalidTokenError:
-        raise creds_exc
-    user = database.get_community_by_username(username)
-    if not user:
-        raise creds_exc
-    return user
+
+        community = get_community_by_username(payload.sub)
+        if not community:
+            raise creds_exc
+        return community
+
+    return router # Retorna o router configurado com as rotas de autenticação
