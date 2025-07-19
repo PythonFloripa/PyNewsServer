@@ -5,20 +5,21 @@ from enum import Enum
 
 
 ## User Class
-class User(BaseModel):
+class Community(BaseModel):
     username: str
     full_name: str
     email: str
 
-class UserInDB(User):
-    password: str  # Apenas interno, não retorna na API
+class CommunityInDB(Community):
+    password: str
 
 class Token(BaseModel):
     access_token: str
     token_type: str
+    expires_in: int
 
-class TokenData(BaseModel):
-    username: str | None = None
+class TokenPayload(BaseModel):
+    username: str
 
 ## Subscription Class
 class TagEnum(str, Enum):
