@@ -32,7 +32,7 @@ app = FastAPI(
 )
 
 async def get_db_session():
-    # Usa app.state para acessar a fábrica de sessões que foi injetada
+    # Usa app.attr para acessar a fábrica de sessões que foi injetada
     async with app.db_session_factory() as session: 
         yield session
 
@@ -41,6 +41,10 @@ app.include_router(setup_router_v2(), prefix='/api')
 logger.info('PyNews Server Starter')
 
 
+
+"""  
+Testes enquanto a implementação dos modelos finais do projeto não estão nos arquivos.
+"""
 
 @app.post("/test-entry/", response_model=TestEntry)
 async def create_entry(message: str, session: AsyncSession = Depends(get_db_session)):
@@ -59,5 +63,5 @@ async def read_entries(session: AsyncSession = Depends(get_db_session)):
     Retorna todas as entradas de teste do banco de dados.
     """
     from sqlmodel import select # Importa select para consultas
-    result = await session.execute(select(TestEntry)) 
-    return result.scalars().all()
+    result = await session.exec(select(TestEntry)) 
+    return result.all()
