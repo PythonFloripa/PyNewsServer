@@ -11,6 +11,8 @@ services:
       - "8000:8000"
     environment:
       - PYTHONPATH=/server
+      - SQLITE_PATH=app/services/database/pynewsdb.db
+      - SQLITE_URL=sqlite+aiosqlite://
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/healthcheck"]
