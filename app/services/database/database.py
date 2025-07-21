@@ -9,8 +9,8 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 # --- Configuração do Banco de Dados ---
-# Usamos 'sqlite+aiosqlite' para suporte assíncrono com SQLite
-SQLITE_PATH = os.getenv('SQLITE_PATH', 'pynews.db') # Valor padrão se não definida
+# 'sqlite+aiosqlite' para suporte assíncrono com SQLite
+SQLITE_PATH = os.getenv('SQLITE_PATH', 'pynewsdb.db') # Valor padrão se não definida
 SQLITE_URL = os.getenv('SQLITE_URL', f'sqlite+aiosqlite:///{SQLITE_PATH}')
 
 DATABASE_FILE = SQLITE_PATH # Usamos SQLITE_PATH para o nome do arquivo
@@ -32,6 +32,7 @@ class TestEntry(SQLModel, table=True): # table=True indica que esta classe é um
     Classe de modelo temporária para testes de conexão com o banco de dados.
     Será usada como uma solução provisória antes da implementação dos modelos finais do projeto.
     """
+    __tablename__ = "test_entries"
     id: int | None = Field(default=None, primary_key=True)
     message: str
 
@@ -61,10 +62,9 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
     Função utilitária que fornece uma sessão de banco de dados assíncrona.
     Injeção de dependência no app no lifespan. 
     """
-    # Agora, usa a fábrica de sessões global AsyncSessionLocal
     async with AsyncSessionLocal() as session:
         yield session
-    # chamada do session.close() acontece ao final do bloco with. 
+    # chamada do session.close() acontece ao final do bloco async with(). 
 
 """  
 Testes enquanto a implementação dos modelos finais do projeto não estão nos arquivos.

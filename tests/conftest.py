@@ -9,7 +9,7 @@ from httpx import ASGITransport, AsyncClient
 
 
 
-from app.main import app 
+from app.main import app , get_db_session
 from sqlmodel import SQLModel, create_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import AsyncEngine
@@ -64,8 +64,8 @@ async def async_client(test_app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
     dependências sobrescritas.
     """
     # Sobrescreve a dependência get_db_session no app principal
-    test_app.db_session_factory = TestSessionLocal
-    test_app.get_db_session = override_get_db_session
+    test_app.dependency_overrides[get_db_session] = override_get_db_session
+    
     
     # Inicializa o banco de dados em memória e cria as tabelas para cada função de teste
     await init_test_db()
@@ -75,13 +75,12 @@ async def async_client(test_app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
     ) as client:
         yield client
     
-    # Limpa as tabelas do banco de dados em memória após cada teste
-    # ou simplesmente deixa o escopo do fixture fazer isso (memória se autodestrói)
-    # se você quiser um ambiente completamente limpo para cada teste, esta linha é redundante
-    # para SQLite in-memory, mas é um bom padrão para outros DBs.
+    # Limpa as tabelas do banco de dados em após cada teste.
+    # para SQLite in-memory não é necessário, mas é um bom padrão para outros DBs.
     async with test_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.drop_all)
- 
+    # Limpa as sobrescritas de dependência.
+    test_app.dependency_overrides.clear()
 
 
 

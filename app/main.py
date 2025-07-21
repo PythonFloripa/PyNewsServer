@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     ## add check db file and create if not found 
     await init_db() 
-    app.db_session_factory = AsyncSessionLocal ## setup do objeto para
+    app.db_session_factory = AsyncSessionLocal
     try:
         yield
     finally:
