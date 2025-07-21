@@ -1,5 +1,6 @@
 # database.py
 import os
+import logging 
 from typing import AsyncGenerator
 
 from sqlmodel import SQLModel, create_engine, Field
@@ -7,6 +8,9 @@ from sqlalchemy.orm import sessionmaker
 
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import AsyncEngine
+
+
+logger = logging.getLogger(__name__) 
 
 # --- Configuração do Banco de Dados ---
 # 'sqlite+aiosqlite' para suporte assíncrono com SQLite
@@ -23,7 +27,7 @@ engine: AsyncEngine = AsyncEngine(create_engine(DATABASE_URL, echo=True, future=
 # Crie a fábrica de sessões UMA VEZ no escopo global do módulo.
 # Esta é a variável é injetada para obter sessões nas chamadas. 
 AsyncSessionLocal = sessionmaker(
-    engine, class_=AsyncSession, expire_on_commit=False # expire_on_commit=False é importante!
+    engine, class_=AsyncSession, expire_on_commit=False, echo= True # expire_on_commit=False é importante!
 )
 
 # --- Modelo de Teste Temporário (SQLModel) ---
@@ -47,15 +51,14 @@ async def init_db():
     1. Verifica se o arquivo do banco de dados existe.
     2. Se não existir, cria o arquivo e todas as tabelas definidas nos modelos SQLModel nos imports e acima.
     """
-    # Verifica se o arquivo do banco de dados existe
     if not os.path.exists(DATABASE_FILE):
-        print(f"Arquivo de banco de dados '{DATABASE_FILE}' não encontrado. Criando novo banco de dados e tabelas.")
+        logger.info(f"Arquivo de banco de dados '{DATABASE_FILE}' não encontrado. Criando novo banco de dados e tabelas.")
         async with engine.begin() as conn:
             # SQLModel.metadata.create_all é síncrono e precisa ser executado via run_sync
             await conn.run_sync(SQLModel.metadata.create_all)
-        print("Tabelas criadas com sucesso.")
+        logger.info("Tabelas criadas com sucesso.")
     else:
-        print(f"Arquivo de banco de dados '{DATABASE_FILE}' já existe. Conectando.")
+        logger.info(f"Arquivo de banco de dados '{DATABASE_FILE}' já existe. Conectando.")
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     """
@@ -65,23 +68,3 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
         yield session
     # chamada do session.close() acontece ao final do bloco async with(). 
-
-"""  
-Testes enquanto a implementação dos modelos finais do projeto não estão nos arquivos.
-"""
-''' 
-# --- Funções CRUD de Exemplo (Opcional) ---
-async def create_test_entry(session: AsyncSession, message: str) -> TestEntry:
-    """Cria uma nova entrada de teste no banco de dados."""
-    new_entry = TestEntry(message=message)
-    session.add(new_entry)
-    await session.commit()
-    await session.refresh(new_entry)
-    return new_entry
-
-async def get_test_entries(session: AsyncSession) -> list[TestEntry]:
-    """Retorna todas as entradas de teste do banco de dados."""
-    from sqlmodel import select # Importa select para consultas desse testes 
-    result = await session.exec(select(TestEntry))
-    return result.scalars().all()
- '''
