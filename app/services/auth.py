@@ -10,11 +10,11 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 20
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verify_password(plain, hashed): 
-    """ Verifica se a senha passada bate com a hash da comunidade """
+    # Verifica se a senha passada bate com a hash da comunidade
     return pwd_context.verify(plain, hashed)
 
 def get_password_hash(password): 
-    """ Retorna a senha em hash para salvar no banco de dados """
+    # Retorna a senha em hash para salvar no banco de dados
     return pwd_context.hash(password)
 
 def create_access_token(data: TokenPayload, expires_delta: timedelta | None = None):
@@ -27,9 +27,12 @@ def create_access_token(data: TokenPayload, expires_delta: timedelta | None = No
 
     Retorna:
     - str: Token JWT assinado.
+    - int: tempo de expiração em segundos
     """
-    
-    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    if not expires_delta:
+        expires_delta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(timezone.utc) + expires_delta
     to_encode = {"sub": data.username, "exp": expire}
-    
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+    return token, int(expires_delta.total_seconds())
