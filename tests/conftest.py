@@ -8,8 +8,15 @@ from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
 
-from app.main import app
 
+from app.main import app , get_db_session
+from sqlmodel import SQLModel, create_engine
+from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.orm import sessionmaker
+
+# Importar todos os modelos SQLModel a serem usados (necessários para as validações de modelo)
+from app.services.database.database import TestEntry
 
 @pytest.fixture
 def test_app() -> FastAPI:
@@ -22,41 +29,59 @@ def test_app() -> FastAPI:
     app.schema_checker = mock_schema_checker
     return app
 
+ 
+# --- Configurações do Banco de Dados em Memória para Testes ---
+# Usamos engine e AsyncSessionLocal apenas para os testes.
+# Isso garante que os testes são isolados e usam o banco de dados em memória.
+TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+
+test_engine: AsyncEngine = AsyncEngine(create_engine(TEST_DATABASE_URL, echo=False, future=True))
+
+# Fábrica de sessões para os testes
+TestSessionLocal = sessionmaker(
+    test_engine, class_=AsyncSession, expire_on_commit=False
+)
+
+async def init_test_db():
+    """
+    Inicializa o banco de dados em memória para testes, criando todas as tabelas.
+    """
+    async with test_engine.begin() as conn:
+        # Cria as tabelas para todos os modelos SQLModel na base de teste
+        await conn.run_sync(SQLModel.metadata.create_all)
+
+async def override_get_db_session() -> AsyncGenerator[AsyncSession, None]:
+    """
+    Sobrescreve a dependência get_db_session para usar a sessão de teste.
+    """
+    async with TestSessionLocal() as session:
+        yield session
 
 @pytest_asyncio.fixture(scope='function')
-async def mongodb_client():
-    """Create a MongoDB client for the test."""
-    mongodb_url = os.getenv('MONGODB_URL', 'mongodb://localhost:27017')
-    return AsyncIOMotorClient(mongodb_url)
-
-
-@pytest_asyncio.fixture(scope='function')
-async def test_database(mongodb_client):
-    """Create a test database connection with test collections."""
-    mongodb_database = os.getenv('MONGODB_DB_CLIENTS', 'test_database')
-    db = mongodb_client[mongodb_database]
-
-    # Clean up before each test
-    await db.client.drop_database(mongodb_database)
-
-    try:
-        yield db
-    finally:
-        # Clean up after each test
-        await db.client.drop_database(mongodb_database)
-
-
-@pytest_asyncio.fixture(scope='function')
-async def async_client(test_app: FastAPI, test_database) -> AsyncGenerator:
-    """Create an async client for testing."""
-    # Mock the authorization dependencies and schema validation
-    mock_database = AsyncMock()
-    mock_database.client.value = test_database
+async def async_client(test_app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
+    """
+    Cria um cliente assíncrono para testes, com o banco de dados em memória e
+    dependências sobrescritas.
+    """
+    # Sobrescreve a dependência get_db_session no app principal
+    test_app.dependency_overrides[get_db_session] = override_get_db_session
+    
+    
+    # Inicializa o banco de dados em memória e cria as tabelas para cada função de teste
+    await init_test_db()
 
     async with AsyncClient(
         transport=ASGITransport(app=test_app), base_url='http://test'
     ) as client:
         yield client
+    
+    # Limpa as tabelas do banco de dados em após cada teste.
+    # para SQLite in-memory não é necessário, mas é um bom padrão para outros DBs.
+    async with test_engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.drop_all)
+    # Limpa as sobrescritas de dependência.
+    test_app.dependency_overrides.clear()
+
 
 
 @pytest.fixture
