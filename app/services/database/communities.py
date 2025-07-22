@@ -1,7 +1,11 @@
+from typing import Optional
+
 from sqlmodel import SQLModel, Field
 
-class Communities(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+class Community(SQLModel, table=True):
+    __tablename__ = "communities"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
     username: str
     email: str
     password: str
