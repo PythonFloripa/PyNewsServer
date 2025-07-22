@@ -6,7 +6,7 @@ import pytest_asyncio
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
-from app.main import app, get_db_session
+from app.main import app as fastapi_app, get_db_session
 from sqlmodel import SQLModel, create_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import AsyncEngine
@@ -16,17 +16,6 @@ from sqlalchemy.orm import sessionmaker
 from app.services.database.database import TestEntry
 import app.services.database.communities
 import app.services.database.libraries
-
-@pytest.fixture
-def test_app() -> FastAPI:
-    # Create a mock schema checker
-    mock_schema_checker = AsyncMock()
-    mock_schema_checker.validate = AsyncMock(return_value=None)
-    mock_schema_checker.start = AsyncMock(return_value=None)
-
-    # Add the mock to the app
-    app.schema_checker = mock_schema_checker
-    return app
 
 # --- Configurações do Banco de Dados em Memória para Testes ---
 # Usamos engine e AsyncSessionLocal apenas para os testes.
@@ -60,17 +49,28 @@ async def session() -> AsyncGenerator[AsyncSession, None]:
     yield session
     await session.close()
 
+@pytest.fixture
+def test_app() -> FastAPI:
+    # Create a mock schema checker
+    mock_schema_checker = AsyncMock()
+    mock_schema_checker.validate = AsyncMock(return_value=None)
+    mock_schema_checker.start = AsyncMock(return_value=None)
+
+    # Add the mock to the app
+    fastapi_app.schema_checker = mock_schema_checker
+    fastapi_app.dependency_overrides[get_db_session] = get_db_session_test
+    yield fastapi_app
+    fastapi_app.dependency_overrides.clear()
+
 @pytest_asyncio.fixture(scope='function')
 async def async_client(test_app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
     """
     Cria um cliente assíncrono para testes, com o banco de dados em memória e
     dependências sobrescritas.
     """
-    test_app.dependency_overrides[get_db_session] = get_db_session_test
     # Sobrescreve a dependência get_db_session no app principal
     async with AsyncClient(transport=ASGITransport(app=test_app), base_url='http://test') as client:
         yield client
-    test_app.dependency_overrides.clear()
 
 
 @pytest.fixture

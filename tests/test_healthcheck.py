@@ -1,9 +1,11 @@
 import pytest
 from fastapi import status
+from httpx import AsyncClient
+from typing import Mapping
 
 
 @pytest.mark.asyncio
-async def test_healthcheck_endpoint(async_client, mock_headers):
+async def test_healthcheck_endpoint(async_client: AsyncClient, mock_headers: Mapping[str, str]):
     """Test the healthcheck endpoint returns correct status and version."""
     #response = await async_client.get('/v2/healthcheck', headers=mock_headers)
     response = await async_client.get('/api/healthcheck', headers=mock_headers)
@@ -13,7 +15,7 @@ async def test_healthcheck_endpoint(async_client, mock_headers):
 
 
 @pytest.mark.asyncio
-async def test_healthcheck_endpoint_without_auth(async_client):
+async def test_healthcheck_endpoint_without_auth(async_client: AsyncClient):
     """Test the healthcheck endpoint without authentication headers."""
     #response = await async_client.get('/v2/healthcheck')
     response = await async_client.get('/api/healthcheck')
