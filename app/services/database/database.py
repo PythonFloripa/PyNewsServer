@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker
 
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import AsyncEngine
+from app.services.database.model.community import Community
 
 
 logger = logging.getLogger(__name__) 
@@ -27,7 +28,7 @@ engine: AsyncEngine = AsyncEngine(create_engine(DATABASE_URL, echo=True, future=
 # Crie a fábrica de sessões UMA VEZ no escopo global do módulo.
 # Esta é a variável é injetada para obter sessões nas chamadas. 
 AsyncSessionLocal = sessionmaker(
-    engine, class_=AsyncSession, expire_on_commit=False, echo= True # expire_on_commit=False é importante!
+    engine, class_=AsyncSession, expire_on_commit=False # expire_on_commit=False é importante!
 )
 
 # --- Modelo de Teste Temporário (SQLModel) ---
@@ -59,6 +60,10 @@ async def init_db():
         logger.info("Tabelas criadas com sucesso.")
     else:
         logger.info(f"Arquivo de banco de dados '{DATABASE_FILE}' já existe. Conectando.")
+
+    # Import local para evitar import circular
+    from app.services.database.seeder import insert_test_community
+    await insert_test_community()
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     """

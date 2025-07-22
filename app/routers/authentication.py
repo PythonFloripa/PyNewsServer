@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from app.services import auth
-from app.services.database.database import get_community_by_username # Atualizar após banco de dados
+from app.services.database.community import get_community_by_username # Atualizar após banco de dados
 from app.schemas import Token, TokenPayload, Community
 import jwt
 from jwt.exceptions import InvalidTokenError
