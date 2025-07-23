@@ -12,10 +12,9 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.orm import sessionmaker
 
+from app.services.database import models
+
 # Importar todos os modelos SQLModel a serem usados (necessários para as validações de modelo)
-from app.services.database.database import TestEntry
-import app.services.database.communities
-import app.services.database.libraries
 
 # --- Configurações do Banco de Dados em Memória para Testes ---
 # Usamos engine e AsyncSessionLocal apenas para os testes.

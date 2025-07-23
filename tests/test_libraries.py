@@ -4,8 +4,8 @@ import pytest_asyncio
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.services.database.communities import Community
-from app.services.database.libraries import Library
+from services.database.models import Community
+from services.database.models import Library
 
 @pytest_asyncio.fixture
 async def community(session: AsyncSession):

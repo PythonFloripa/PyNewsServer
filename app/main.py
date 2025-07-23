@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.services.database.database import init_db, get_session, TestEntry, AsyncSessionLocal
+from services.database.database import init_db, AsyncSessionLocal
 from app.routers.router import setup_router as setup_router_v2
 
 

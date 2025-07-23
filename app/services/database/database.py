@@ -1,4 +1,3 @@
-# database.py
 import logging
 import os
 from typing import AsyncGenerator
@@ -8,8 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel, create_engine, Field
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-import app.services.database.communities
-import app.services.database.libraries
+from app.services.database import models
 
 logger = logging.getLogger(__name__)
 
