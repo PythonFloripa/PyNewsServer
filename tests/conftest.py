@@ -37,9 +37,6 @@ async def get_db_session_test() -> AsyncGenerator[AsyncSession, None]:
 async def setup_database():
     async with test_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
-    yield
-    async with test_engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.drop_all)
 
 @pytest_asyncio.fixture(scope="function")
 async def session() -> AsyncGenerator[AsyncSession, None]:
