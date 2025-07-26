@@ -8,7 +8,6 @@ from sqlalchemy.orm import sessionmaker
 
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import AsyncEngine
-from app.services.database.model.community import Community
 
 
 logger = logging.getLogger(__name__) 
@@ -45,25 +44,28 @@ class TestEntry(SQLModel, table=True): # table=True indica que esta classe é um
         return f"<TestEntry(id={self.id}, message='{self.message}')>"
     
 
-# --- Funções de Inicialização e Sessão do Banco de Dados ---
+# --- Funções de Inicialização e Sessão do Banco de Dados ---        
 async def init_db():
     """
     Inicializa o banco de dados:
-    1. Verifica se o arquivo do banco de dados existe.
-    2. Se não existir, cria o arquivo e todas as tabelas definidas nos modelos SQLModel nos imports e acima.
+    1. Cria todas as tabelas definidas (caso não existam).
+    2. Insere o usuário de teste 'alice' via seeder, se necessário.
     """
-    if not os.path.exists(DATABASE_FILE):
-        logger.info(f"Arquivo de banco de dados '{DATABASE_FILE}' não encontrado. Criando novo banco de dados e tabelas.")
-        async with engine.begin() as conn:
-            # SQLModel.metadata.create_all é síncrono e precisa ser executado via run_sync
-            await conn.run_sync(SQLModel.metadata.create_all)
-        logger.info("Tabelas criadas com sucesso.")
-    else:
-        logger.info(f"Arquivo de banco de dados '{DATABASE_FILE}' já existe. Conectando.")
+    logger.info("Inicializando banco de dados...")
 
-    # Import local para evitar import circular
+    # ✅ Importa os models para registrar no SQLModel.metadata
+    from app.services.database.model import community_model  # importa o módulo inteiro, não só a classe
+
+    # 🔧 Garante que todas as tabelas (incluindo 'community') sejam criadas, se não existirem
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
+
+    logger.info("Tabelas do banco de dados verificadas/criadas com sucesso.")
+
+    # ✅ Executa o seeder para inserir o usuário 'alice', se necessário
     from app.services.database.seeder import insert_test_community
     await insert_test_community()
+
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     """

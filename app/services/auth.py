@@ -12,6 +12,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verify_password(plain, hashed): 
     # Verifica se a senha passada bate com a hash da comunidade
+    print(plain, hashed)
     return pwd_context.verify(plain, hashed)
 
 def get_password_hash(password): 

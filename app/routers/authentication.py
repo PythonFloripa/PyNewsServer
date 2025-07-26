@@ -11,9 +11,9 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/authentication/token")
 def setup():
     router = APIRouter(prefix='/authentication', tags=['authentication'])
 
-    def authenticate_community(username: str, password: str):
+    async def authenticate_community(username: str, password: str):
         # Valida se o usuário existe e se a senha está correta
-        db_user = get_community_by_username(username)
+        db_user = await get_community_by_username(username)
         if not db_user or not auth.verify_password(password, db_user.password):
             return None
         return db_user
@@ -21,12 +21,13 @@ def setup():
     @router.post("/token", response_model=Token)
     async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
         # Rota de login: valida credenciais e retorna token JWT
-        community = authenticate_community(form_data.username, form_data.password)
+        community = await authenticate_community(form_data.username, form_data.password)
         if not community:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Credenciais inválidas"
             )
+        # Community ex: email='alice@example.com' id=1 username='alice' full_name="Alice in the Maravilha's world" password='$2b$12$cA3fzLrRCmLp1aKn6ULhF.sQfaPQ70EoJU3Q0Szf6e4/YaVsKAAHS'
         payload = TokenPayload(username=community.username)
         token, expires_in = auth.create_access_token(data=payload)
         return {
