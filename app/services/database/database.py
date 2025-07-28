@@ -1,16 +1,15 @@
-# database.py
+import logging
 import os
-import logging 
 from typing import AsyncGenerator
 
-from sqlmodel import SQLModel, create_engine, Field
-from sqlalchemy.orm import sessionmaker
-
-from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.orm import sessionmaker
+from sqlmodel import SQLModel, create_engine, Field
+from sqlmodel.ext.asyncio.session import AsyncSession
 
+from app.services.database import models
 
-logger = logging.getLogger(__name__) 
+logger = logging.getLogger(__name__)
 
 # --- Configuração do Banco de Dados ---
 # 'sqlite+aiosqlite' para suporte assíncrono com SQLite
