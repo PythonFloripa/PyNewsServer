@@ -1,9 +1,12 @@
-from pydantic import BaseModel, HttpUrl
 from datetime import datetime
+
+from pydantic import BaseModel, HttpUrl
+
 
 class News(BaseModel):
     description: str
     tag: str
+
 
 class Library(BaseModel):
     library_name: str
