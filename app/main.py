@@ -2,7 +2,7 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from services.database.database import AsyncSessionLocal, init_db
+from app.services.database.database import AsyncSessionLocal, init_db
 
 from app.routers.router import setup_router as setup_router_v2
 
