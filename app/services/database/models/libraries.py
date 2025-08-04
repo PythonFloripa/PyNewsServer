@@ -1,5 +1,7 @@
 from typing import Optional
-from sqlmodel import SQLModel, Field
+
+from sqlmodel import Field, SQLModel
+
 
 class Library(SQLModel, table=True):
     __tablename__ = "libraries"
@@ -9,4 +11,6 @@ class Library(SQLModel, table=True):
     user_email: str
     releases_url: str
     logo: str
-    community_id: Optional[int] = Field(default=None, foreign_key="communities.id")
+    community_id: Optional[int] = Field(
+        default=None, foreign_key="communities.id"
+    )

@@ -5,26 +5,31 @@ import pytest
 import pytest_asyncio
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
-
-from app.main import app as fastapi_app, get_db_session
-from sqlmodel import SQLModel, create_engine
-from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.orm import sessionmaker
+from sqlmodel import SQLModel, create_engine
+from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.services.database import models
+from app.main import app as fastapi_app
+from app.main import get_db_session
 
-# Importar todos os modelos SQLModel a serem usados (necessários para as validações de modelo)
+# Importar todos os modelos SQLModel a serem usados
+# (necessários para as validações de modelo)
 
 # --- Configurações do Banco de Dados em Memória para Testes ---
 # Usamos engine e AsyncSessionLocal apenas para os testes.
 # Isso garante que os testes são isolados e usam o banco de dados em memória.
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
-test_engine: AsyncEngine = AsyncEngine(create_engine(TEST_DATABASE_URL, echo=False, future=True))
+test_engine: AsyncEngine = AsyncEngine(
+    create_engine(TEST_DATABASE_URL, echo=False, future=True)
+)
 
 # Fábrica de sessões para os testes
-TestSessionLocal = sessionmaker(test_engine, class_=AsyncSession, expire_on_commit=False)
+TestSessionLocal = sessionmaker(
+    test_engine, class_=AsyncSession, expire_on_commit=False
+)
+
 
 async def get_db_session_test() -> AsyncGenerator[AsyncSession, None]:
     """
@@ -33,10 +38,12 @@ async def get_db_session_test() -> AsyncGenerator[AsyncSession, None]:
     async with TestSessionLocal() as session:
         yield session
 
+
 @pytest_asyncio.fixture(scope="function", autouse=True)
 async def setup_database():
     async with test_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
+
 
 @pytest_asyncio.fixture(scope="function")
 async def session() -> AsyncGenerator[AsyncSession, None]:
@@ -44,6 +51,7 @@ async def session() -> AsyncGenerator[AsyncSession, None]:
     session = await anext(async_session_generator)
     yield session
     await session.close()
+
 
 @pytest.fixture
 def test_app() -> FastAPI:
@@ -58,19 +66,22 @@ def test_app() -> FastAPI:
     yield fastapi_app
     fastapi_app.dependency_overrides.clear()
 
-@pytest_asyncio.fixture(scope='function')
+
+@pytest_asyncio.fixture(scope="function")
 async def async_client(test_app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
     """
     Cria um cliente assíncrono para testes, com o banco de dados em memória e
     dependências sobrescritas.
     """
     # Sobrescreve a dependência get_db_session no app principal
-    async with AsyncClient(transport=ASGITransport(app=test_app), base_url='http://test') as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=test_app), base_url="http://test"
+    ) as client:
         yield client
 
 
 @pytest.fixture
 def mock_headers():
     return {
-        'header1': 'value1',
+        "header1": "value1",
     }
