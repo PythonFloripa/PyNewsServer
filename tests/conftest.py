@@ -13,8 +13,8 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from app.main import app as fastapi_app
 from app.main import get_db_session
 
-# Importar todos os modelos SQLModel necessários para as validações de modelo
-from app.services.database import models  # noqa: F401
+# Importar todos os modelos SQLModel a serem usados
+# (necessários para as validações de modelo)
 
 # --- Configurações do Banco de Dados em Memória para Testes ---
 # Usamos engine e AsyncSessionLocal apenas para os testes.
@@ -22,18 +22,13 @@ from app.services.database import models  # noqa: F401
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
 test_engine: AsyncEngine = AsyncEngine(
-                            create_engine(
-                            TEST_DATABASE_URL,
-                            echo=False,
-                            future=True
-                            )
-                           )
+    create_engine(TEST_DATABASE_URL, echo=False, future=True)
+)
 
 # Fábrica de sessões para os testes
 TestSessionLocal = sessionmaker(
-                                test_engine,
-                                class_=AsyncSession,
-                                expire_on_commit=False)
+    test_engine, class_=AsyncSession, expire_on_commit=False
+)
 
 
 async def get_db_session_test() -> AsyncGenerator[AsyncSession, None]:
@@ -48,7 +43,6 @@ async def get_db_session_test() -> AsyncGenerator[AsyncSession, None]:
 async def setup_database():
     async with test_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
-    yield test_engine     
 
 
 @pytest_asyncio.fixture(scope="function")
@@ -73,21 +67,21 @@ def test_app() -> FastAPI:
     fastapi_app.dependency_overrides.clear()
 
 
-@pytest_asyncio.fixture(scope='function')
+@pytest_asyncio.fixture(scope="function")
 async def async_client(test_app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
     """
     Cria um cliente assíncrono para testes, com o banco de dados em memória e
     dependências sobrescritas.
     """
     # Sobrescreve a dependência get_db_session no app principal
-    ASGItransport = ASGITransport(app=test_app)
-    url = 'http://test'
-    async with AsyncClient(transport=ASGItransport, base_url=url) as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=test_app), base_url="http://test"
+    ) as client:
         yield client
 
 
 @pytest.fixture
 def mock_headers():
     return {
-        'header1': 'value1',
+        "header1": "value1",
     }

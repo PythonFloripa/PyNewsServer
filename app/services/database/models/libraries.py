@@ -11,5 +11,6 @@ class Library(SQLModel, table=True):
     user_email: str
     releases_url: str
     logo: str
-    community_id: Optional[int] = Field(default=None,
-                                         foreign_key="communities.id")
+    community_id: Optional[int] = Field(
+        default=None, foreign_key="communities.id"
+    )

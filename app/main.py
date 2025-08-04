@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from app.services.database.database import AsyncSessionLocal, init_db
 
 from app.routers.router import setup_router as setup_router_v2
+from app.services.database.database import AsyncSessionLocal, init_db
 
 logger = logging.getLogger(__name__)
 
@@ -22,8 +23,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     lifespan=lifespan,
-    title='pynews-server',
-    description='PyNews Server',
+    title="pynews-server",
+    description="PyNews Server",
 )
 
 
@@ -33,6 +34,6 @@ async def get_db_session():
         yield session
 
 
-app.include_router(setup_router_v2(), prefix='/api')
+app.include_router(setup_router_v2(), prefix="/api")
 
-logger.info('PyNews Server Starter')
+logger.info("PyNews Server Starter")
