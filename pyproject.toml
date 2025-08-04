@@ -16,6 +16,7 @@ uvicorn = "^0.22.0"
 httpx = "^0.28.1"
 sqlmodel = "^0.0.24"
 aiosqlite = "^0.21.0"
+pre-commit = "^4.2.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.2"
