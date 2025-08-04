@@ -24,7 +24,6 @@ async def test_insert_libraries(session: AsyncSession, community: Community):
     news = News(
       title="Python 3.12 Lançado!",
       content="A nova versão do Python traz melhorias ...",
-      author="Python Team",
       category="release",
       user_email="dev@example.com",
       source_url="https://python.org/news",
@@ -42,7 +41,6 @@ async def test_insert_libraries(session: AsyncSession, community: Community):
     assert found_news is not None
     assert found_news.title == "Python 3.12 Lançado!"
     assert found_news.content == "A nova versão do Python traz melhorias ..."
-    assert found_news.author == "Python Team"
     assert found_news.category == "release"
     assert found_news.user_email == "dev@example.com"
     assert found_news.source_url == "https://python.org/news"
