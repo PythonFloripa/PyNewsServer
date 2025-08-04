@@ -2,8 +2,8 @@ import logging
 import os
 from typing import AsyncGenerator
 
-from sqlalchemy.orm import sessionmaker
-from sqlmodel import Field, SQLModel, create_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlmodel import Field, SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.services.database import models  # noqa F401
@@ -22,13 +22,13 @@ DATABASE_FILE = SQLITE_PATH  # Usamos SQLITE_PATH para o nome do arquivo
 DATABASE_URL = SQLITE_URL  # Usamos SQLITE_URL para a URL completa
 
 # Cria o motor assíncrono
-engine = create_engine(DATABASE_URL, echo=True, future=True)
+engine = create_async_engine(DATABASE_URL, echo=True, future=True)
 
 
 # --- Fábrica de Sessões Assíncronas ---
 # Crie a fábrica de sessões UMA VEZ no escopo global do módulo.
 # Esta é a variável é injetada para obter sessões nas chamadas.
-AsyncSessionLocal = sessionmaker(
+AsyncSessionLocal = async_sessionmaker(
     engine,
     class_=AsyncSession,
     expire_on_commit=False,
