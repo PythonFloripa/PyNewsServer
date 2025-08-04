@@ -1,13 +1,9 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI , Depends, HTTPException
-from fastapi.exceptions import RequestValidationError
-from httpx import AsyncClient
-from typing import List
-from sqlmodel.ext.asyncio.session import AsyncSession
+from fastapi import FastAPI
 
-from app.services.database.database import init_db, get_session, TestEntry, AsyncSessionLocal
+from services.database.database import init_db, AsyncSessionLocal
 from app.routers.router import setup_router as setup_router_v2
 
 
