@@ -1,7 +1,10 @@
 from datetime import datetime
+from typing import Mapping
 
 import pytest
 import pytest_asyncio
+from fastapi import status
+from httpx import AsyncClient
 from services.database.models import Community, News
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -55,12 +58,6 @@ async def test_insert_libraries(session: AsyncSession, community: Community):
 
 
 # ADD like test case for News model
-from typing import Mapping
-
-import pytest
-from fastapi import status
-from httpx import AsyncClient
-
 
 @pytest.mark.asyncio
 async def test_news_endpoint(
