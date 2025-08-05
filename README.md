@@ -4,8 +4,8 @@ Serviço de Noticas e Bibliotecas PyNews
 ## 💡 Visão Geral
 
 ## 💻 Tecnologias Utilizadas
-    - Python 
-        - FastAPI 
+    - Python
+        - FastAPI
         - Pydantic
         - Poetry
         - Sqlite3
@@ -13,7 +13,7 @@ Serviço de Noticas e Bibliotecas PyNews
         - ruff (linter)
 
 ## 🚀 Recursos e Funcionalidades
-    Endpoints para CRUD de noticias selecionadas pela comunidade. 
+    Endpoints para CRUD de noticias selecionadas pela comunidade.
 
 ### Schema da API
     [Documentação de referencia API Dog](https://apidog.com/apidoc/shared/70418cab-ddba-4c7d-97a4-8b70b43a7946/)
@@ -21,7 +21,7 @@ Serviço de Noticas e Bibliotecas PyNews
 
 ---
 
-### Schema do Servidor 
+### Schema do Servidor
 ```
     fastapi_news_service/
     │
@@ -41,7 +41,7 @@ Serviço de Noticas e Bibliotecas PyNews
     │       ├── libraries.py      # Definição dos endpoints da API para o módulo de Libraries (/libraries)
     │       └── authentication.py # Definição dos endpoints da API para o módulo de Autenticação (/auth)
     │
-    ├── test/                     # Diretório para testes unitários 
+    ├── test/                     # Diretório para testes unitários
     │   └── __init__.py
     │   └── test_auth.py
     │   └── test_news.py
@@ -77,7 +77,7 @@ sequenceDiagram
     ServicoNoticias-->>Cliente: Notícia Criada (201 Created)
     deactivate ServicoNoticias
     deactivate Cliente
- 
+
 
 ```
 
@@ -245,6 +245,6 @@ poetry run ruff format .
 poetry run ruff check . --fix
 ```
 
- 
-## referencias 
+
+## referencias
     [Opinion based fastapi best practices](https://github.com/zhanymkanov/fastapi-best-practices)

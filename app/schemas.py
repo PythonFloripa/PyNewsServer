@@ -38,6 +38,7 @@ class News(BaseModel):
     description: str
     tag: str
 
+
 class Library(BaseModel):
     library_name: str
     news: list[News]
