@@ -20,7 +20,7 @@ async def community(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_insert_libraries(session: AsyncSession, community: Community):
+async def test_insert_news(session: AsyncSession, community: Community):
     """
     Testa a inserção de uma notícia no banco de dados.
     """
