@@ -1,13 +1,12 @@
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, Generator
 from unittest.mock import AsyncMock
 
 import pytest
 import pytest_asyncio
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy.ext.asyncio import AsyncEngine
-from sqlalchemy.orm import sessionmaker
-from sqlmodel import SQLModel, create_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.main import app as fastapi_app
@@ -21,12 +20,10 @@ from app.main import get_db_session
 # Isso garante que os testes são isolados e usam o banco de dados em memória.
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
-test_engine: AsyncEngine = AsyncEngine(
-    create_engine(TEST_DATABASE_URL, echo=False, future=True)
-)
+test_engine = create_async_engine(TEST_DATABASE_URL, echo=False, future=True)
 
 # Fábrica de sessões para os testes
-TestSessionLocal = sessionmaker(
+TestSessionLocal = async_sessionmaker(
     test_engine, class_=AsyncSession, expire_on_commit=False
 )
 
@@ -55,7 +52,7 @@ async def session() -> AsyncGenerator[AsyncSession, None]:
 
 
 @pytest.fixture
-def test_app() -> FastAPI:
+def test_app() -> Generator[FastAPI]:
     # Create a mock schema checker
     mock_schema_checker = AsyncMock()
     mock_schema_checker.validate = AsyncMock(return_value=None)
