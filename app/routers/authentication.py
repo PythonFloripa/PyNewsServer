@@ -48,7 +48,7 @@ def setup():
         try:
             payload_dict = jwt.decode(token, auth.SECRET_KEY, algorithms=[auth.ALGORITHM])
             payload = TokenPayload(**payload_dict)
-        except (InvalidTokenError, ValueError):
+        except (  InvalidTokenError ,ValueError):
             raise creds_exc
 
         community = get_community_by_username(payload.sub)
