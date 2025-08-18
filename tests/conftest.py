@@ -9,8 +9,8 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.main import app as fastapi_app
-from app.main import get_db_session
+from app.main import app
+#from app.main import get_db_session
 
 # Importar todos os modelos SQLModel a serem usados
 # (necessários para as validações de modelo)
@@ -50,19 +50,11 @@ async def session() -> AsyncGenerator[AsyncSession, None]:
     yield session
     await session.close()
 
-
-@pytest.fixture
-def test_app() -> Generator[FastAPI]:
-    # Create a mock schema checker
-    mock_schema_checker = AsyncMock()
-    mock_schema_checker.validate = AsyncMock(return_value=None)
-    mock_schema_checker.start = AsyncMock(return_value=None)
-
-    # Add the mock to the app
-    fastapi_app.schema_checker = mock_schema_checker
-    fastapi_app.dependency_overrides[get_db_session] = get_db_session_test
-    yield fastapi_app
-    fastapi_app.dependency_overrides.clear()
+@pytest_asyncio.fixture
+async def test_app(session) -> FastAPI:
+    mock_db_connection = session
+    setattr(app, 'db_session_factory', mock_db_connection)
+    return app
 
 
 @pytest_asyncio.fixture(scope="function")
