@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     # add check db file and create if not found
     await init_db()
-    app.db_session_factory = AsyncSessionLocal
+    app.db_session_factory = AsyncSessionLocal()
     try:
         yield
     finally:
@@ -27,12 +27,6 @@ app = FastAPI(
 )
 
 
-async def get_db_session():
-    # Usa app.attr para acessar a fábrica de sessões que foi injetada
-    async with app.db_session_factory() as session:
-        yield session
-
-
-app.include_router(setup_router_v2(), prefix="/api")
+app.include_router(setup_router_v2(), prefix="/api") 
 
 logger.info("PyNews Server Starter")

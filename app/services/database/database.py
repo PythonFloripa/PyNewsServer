@@ -32,7 +32,7 @@ AsyncSessionLocal = async_sessionmaker(
     engine,
     class_=AsyncSession,
     expire_on_commit=False,
-    echo=True,  # expire_on_commit=False é importante!
+    #echo=True,  # expire_on_commit=False é importante!
 )
 
 
