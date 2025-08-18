@@ -1,12 +1,22 @@
-# app/services/database/community.py
+from typing import Optional
 from sqlmodel import select
-from sqlalchemy.exc import NoResultFound
-from app.services.database.model.community_model import Community
-from app.services.database.database import get_session
+from sqlmodel.ext.asyncio.session import AsyncSession
+from app.services.database.models import Community
 
-async def get_community_by_username(username: str):
-    async for session in get_session():
-        stmt = select(Community).where(Community.username == username)
-        result = await session.exec(stmt)
-        user = result.one_or_none()
-        return user
+
+async def get_community_by_username(
+    username: str,
+    session: AsyncSession,
+) -> Optional[Community]:
+    """
+    Busca e retorna um membro da comunidade pelo nome de usuário.
+    Retorna None se o usuário não for encontrado.
+    """
+    # Cria a declaração SQL para buscar a comunidade pelo nome de usuário
+    statement = select(Community).where(Community.username == username)
+    
+    # Executa a declaração na sessão e retorna o primeiro resultado
+    result = await session.exec(statement)
+    community = result.first()
+    
+    return community

@@ -12,17 +12,16 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verify_password(plain, hashed): 
     # Verifica se a senha passada bate com a hash da comunidade
-    print(plain, hashed)
     return pwd_context.verify(plain, hashed)
 
-def get_password_hash(password): 
+def hash_password(password): 
     # Retorna a senha em hash para salvar no banco de dados
     return pwd_context.hash(password)
 
 def create_access_token(data: TokenPayload, expires_delta: timedelta | None = None):
     """
     Gera um token JWT contendo os dados do usuário (payload) e uma data de expiração.
-
+    JWT specification says that there's a key sub (subject) that should be used to identify the user.
     Parâmetros:
     - data (TokenPayload): Dicionário com os dados que serão codificados no token. Deve conter a chave 'sub' com o identificador do usuário.
     - expires_delta (timedelta | None): Tempo até o token expirar. Se não fornecido, usará o padrão de 20 minutos.

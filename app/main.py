@@ -32,7 +32,6 @@ async def get_db_session():
     async with app.db_session_factory() as session:
         yield session
 
-
-app.include_router(setup_router_v2(), prefix="/api")
+app.include_router(setup_router_v2(get_db_session), prefix="/api") 
 
 logger.info("PyNews Server Starter")

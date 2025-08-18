@@ -3,13 +3,24 @@ from datetime import datetime
 from typing import List
 from enum import Enum
 
+## News
+class News(BaseModel):
+    description: str
+    tag: str
 
-## User Class
+class Library(BaseModel):
+    library_name: str
+    news: list[News]
+    logo: HttpUrl
+    version: str
+    release_date: datetime
+    release_doc_url: HttpUrl
+
+## Community / User Class
 class Community(BaseModel):
     username: str
-    full_name: str
     email: str
-
+## Extends Community Class with hashed password
 class CommunityInDB(Community):
     password: str
 
@@ -32,17 +43,3 @@ class TagEnum(str, Enum):
 class Subscription(BaseModel):
     tags: List[TagEnum]
     libraries_list: List[str]
-
-## News
-class News(BaseModel):
-    description: str
-    tag: str
-
-
-class Library(BaseModel):
-    library_name: str
-    news: list[News]
-    logo: HttpUrl
-    version: str
-    release_date: datetime
-    release_doc_url: HttpUrl
