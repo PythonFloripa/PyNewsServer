@@ -1,44 +1,44 @@
-from pydantic import BaseModel, HttpUrl
-from datetime import datetime
-from typing import List
 from enum import Enum
+from typing import List
 
-## News
-class News(BaseModel):
-    description: str
-    tag: str
+from pydantic import BaseModel, HttpUrl
+
 
 class Library(BaseModel):
     library_name: str
-    news: list[News]
+    releases_url: HttpUrl
     logo: HttpUrl
-    version: str
-    release_date: datetime
-    release_doc_url: HttpUrl
 
-## Community / User Class
+
+# Community / User Class
 class Community(BaseModel):
     username: str
     email: str
-## Extends Community Class with hashed password
+
+
+# Extends Community Class with hashed password
 class CommunityInDB(Community):
     password: str
+
 
 class Token(BaseModel):
     access_token: str
     token_type: str
     expires_in: int
 
+
 class TokenPayload(BaseModel):
     username: str
 
-## Subscription Class
+
+# Subscription Class
 class TagEnum(str, Enum):
     bug_fix = "bug_fix"
     update = "update"
     deprecate = "deprecate"
     new_feature = "new_feature"
     security_fix = "security_fix"
+
 
 class Subscription(BaseModel):
     tags: List[TagEnum]
