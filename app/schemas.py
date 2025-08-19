@@ -33,13 +33,13 @@ class TokenPayload(BaseModel):
     username: str
 
 ## Subscription Class
-class TagEnum(str, Enum):
-    bug_fix = "bug_fix"
-    update = "update"
-    deprecate = "deprecate"
-    new_feature = "new_feature"
-    security_fix = "security_fix"
+class SubscriptionTagEnum(str, Enum):
+    UPDATE = "update"
+    BUG_FIX = "bug_fix"
+    NEW_FEATURE = "new_feature"
+    SECURITY_FIX = "security_fix"
 
 class Subscription(BaseModel):
-    tags: List[TagEnum]
+    email: str
+    tags: List[SubscriptionTagEnum]
     libraries_list: List[str]
