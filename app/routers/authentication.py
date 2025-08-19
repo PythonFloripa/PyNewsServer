@@ -7,21 +7,22 @@ from jwt.exceptions import InvalidTokenError
 from app.services import auth
 from app.schemas import Token, TokenPayload, Community
 from app.services.database.models import Community as DBCommunity
-from services.database.orm.community import get_community_by_username
+from app.services.database.orm.community import get_community_by_username
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/authentication/token")
 
 def setup():
     router = APIRouter(prefix='/authentication', tags=['authentication'])
-    async def authenticate_community(request: Request , username: str, password: str):
-        # Valida se o usuário existe e se a senha está correta
-        found_community = await get_community_by_username(
-        username=username,
-        session=request.app.db_session_factory
-    )
-        if not found_community or not auth.verify_password(password, found_community.password):
+    async def authenticate_community( request: Request , username: str, password: str):
+       # Valida se o usuário existe e se a senha está correta
+       session: AsyncSession = request.app.db_session_factory
+       found_community = await get_community_by_username(
+                                    username=username,
+                                    session= session
+                                    )
+       if not found_community or not auth.verify_password(password, found_community.password):
             return None
-        return found_community
+       return found_community
 
 
     #### Teste 
@@ -41,7 +42,7 @@ def setup():
     @router.post("/token", response_model=Token)
     async def login_for_access_token(request: Request , form_data: OAuth2PasswordRequestForm = Depends() ) :
         # Rota de login: valida credenciais e retorna token JWT
-        community = await authenticate_community(form_data.username, form_data.password, request.app.db_session_factory)
+        community = await authenticate_community( request, form_data.username, form_data.password)
         if not community:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
