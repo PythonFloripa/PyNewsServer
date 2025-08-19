@@ -7,7 +7,7 @@ from jwt.exceptions import InvalidTokenError
 from app.services import auth
 from app.schemas import Token, TokenPayload, Community
 from app.services.database.models import Community as DBCommunity
-from app.services.database.community import get_community_by_username
+from services.database.orm.community import get_community_by_username
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/authentication/token")
 
@@ -31,7 +31,7 @@ def setup():
         password = "123Asd!@#"
         hashed_password=auth.hash_password(password)
         community = DBCommunity(username="username", email="username@test.com", password=hashed_password)
-        session = request.app.db_session_factory
+        session: AsyncSession = request.app.db_session_factory
         session.add(community)
         await session.commit()
         await session.refresh(community)
