@@ -27,7 +27,9 @@ def setup():
         response_model=SubscribeLibraryResponse,
         status_code=status.HTTP_200_OK,
         summary="Subscribe to receive library updates",
-        description="Subscribe to multiple libs and tags to receive libs updates",
+        description=(
+            "Subscribe to multiple libs and tags to receive libs updates"
+        ),
     )
     async def subscribe_libraries(
         request: Request,
