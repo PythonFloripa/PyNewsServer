@@ -27,6 +27,6 @@ app = FastAPI(
 )
 
 
-app.include_router(setup_router_v2(), prefix="/api") 
+app.include_router(setup_router_v2(), prefix="/api")
 
 logger.info("PyNews Server Starter")
