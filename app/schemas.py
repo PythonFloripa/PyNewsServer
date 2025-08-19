@@ -1,23 +1,13 @@
-from datetime import datetime
 from enum import Enum
 from typing import List
 
 from pydantic import BaseModel, HttpUrl
 
 
-# News
-class News(BaseModel):
-    description: str
-    tag: str
-
-
 class Library(BaseModel):
     library_name: str
-    news: list[News]
+    releases_url: HttpUrl
     logo: HttpUrl
-    version: str
-    release_date: datetime
-    release_doc_url: HttpUrl
 
 
 # Community / User Class

@@ -1,10 +1,18 @@
 from fastapi import APIRouter, Request, status
 from pydantic import BaseModel
-from services.database.orm.library import get_library_ids_by_multiple_names
+from services.database.orm.library import (
+    get_library_ids_by_multiple_names,
+    insert_library,
+)
 from services.database.orm.subscription import create_multiple_subscription
 
+from app.schemas import Library as LibrarySchema
 from app.schemas import Subscription as SubscriptionSchema
-from app.services.database.models import Subscription
+from app.services.database.models import Library, Subscription
+
+
+class LibraryResponse(BaseModel):
+    status: str = "Library created successfully"
 
 
 class SubscribeLibraryResponse(BaseModel):
@@ -40,5 +48,28 @@ def setup():
         )
 
         return SubscribeLibraryResponse()
+
+    @router.post(
+        "",
+        response_model=LibraryResponse,
+        status_code=status.HTTP_200_OK,
+        summary="Create a library",
+        description="Create a new library to follow",
+    )
+    async def create_library(
+        request: Request,
+        body: LibrarySchema,
+    ):
+        await insert_library(
+            Library(
+                library_name=body.library_name,
+                user_email="",
+                releases_url=body.releases_url.encoded_string(),
+                logo=body.logo.encoded_string(),
+            ),
+            request.app.db_session_factory,
+        )
+
+        return LibraryResponse()
 
     return router
