@@ -22,7 +22,30 @@ class SubscribeLibraryResponse(BaseModel):
 def setup():
     router = APIRouter(prefix="/libraries", tags=["libraries"])
 
-    @router.get(
+    @router.post(
+        "",
+        response_model=LibraryResponse,
+        status_code=status.HTTP_200_OK,
+        summary="Create a library",
+        description="Create a new library to follow",
+    )
+    async def create_library(
+        request: Request,
+        body: LibrarySchema,
+    ):
+        await insert_library(
+            Library(
+                library_name=body.library_name,
+                user_email="",
+                releases_url=body.releases_url.encoded_string(),
+                logo=body.logo.encoded_string(),
+            ),
+            request.app.db_session_factory,
+        )
+
+        return LibraryResponse()
+
+    @router.post(
         "/subscribe",
         response_model=SubscribeLibraryResponse,
         status_code=status.HTTP_200_OK,
@@ -50,28 +73,5 @@ def setup():
         )
 
         return SubscribeLibraryResponse()
-
-    @router.post(
-        "",
-        response_model=LibraryResponse,
-        status_code=status.HTTP_200_OK,
-        summary="Create a library",
-        description="Create a new library to follow",
-    )
-    async def create_library(
-        request: Request,
-        body: LibrarySchema,
-    ):
-        await insert_library(
-            Library(
-                library_name=body.library_name,
-                user_email="",
-                releases_url=body.releases_url.encoded_string(),
-                logo=body.logo.encoded_string(),
-            ),
-            request.app.db_session_factory,
-        )
-
-        return LibraryResponse()
 
     return router
