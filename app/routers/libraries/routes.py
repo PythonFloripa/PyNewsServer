@@ -1,14 +1,14 @@
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel
-from services.database.orm.library import (
-    get_library_ids_by_multiple_names,
-    insert_library,
-)
-from services.database.orm.subscription import create_multiple_subscription
 
 from app.schemas import Library as LibrarySchema
 from app.schemas import Subscription as SubscriptionSchema
 from app.services.database.models import Library, Subscription
+from app.services.database.orm.library import (
+    get_library_ids_by_multiple_names,
+    insert_library,
+)
+from app.services.database.orm.subscription import upsert_multiple_subscription
 
 
 class LibraryResponse(BaseModel):
@@ -33,17 +33,19 @@ def setup():
         request: Request,
         body: LibrarySchema,
     ):
-        await insert_library(
-            Library(
-                library_name=body.library_name,
-                user_email="",
-                releases_url=body.releases_url.encoded_string(),
-                logo=body.logo.encoded_string(),
-            ),
-            request.app.db_session_factory,
+        library = Library(
+            library_name=body.library_name,
+            user_email="",  # TODO: Considerar obter o email do usuário autenticado
+            releases_url=body.releases_url.encoded_string(),
+            logo=body.logo.encoded_string(),
         )
-
-        return LibraryResponse()
+        try:
+            await insert_library(library, request.app.db_session_factory)
+            return LibraryResponse()
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Failed to create library: {e}"
+            )
 
     @router.post(
         "/subscribe",
@@ -58,20 +60,24 @@ def setup():
         request: Request,
         body: SubscriptionSchema,
     ):
-        library_ids = await get_library_ids_by_multiple_names(
-            body.libraries_list, request.app.db_session_factory
-        )
+        try:
+            library_ids = await get_library_ids_by_multiple_names(
+                body.libraries_list, request.app.db_session_factory
+            )
 
-        subscriptions = [
-            Subscription(email=body.email, tags=body.tags, library_id=id)
-            for id in library_ids
-        ]
+            subscriptions = [
+                Subscription(email=body.email, tags=body.tags, library_id=id)
+                for id in library_ids
+            ]
 
-        await create_multiple_subscription(
-            subscriptions,
-            request.app.db_session_factory,
-        )
+            await upsert_multiple_subscription(
+                subscriptions, request.app.db_session_factory
+            )
 
-        return SubscribeLibraryResponse()
+            return SubscribeLibraryResponse()
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Subscription failed: {e}"
+            )
 
     return router
