@@ -1,4 +1,5 @@
-from passlib.context import CryptContext
+#from passlib.context import CryptContext
+import bcrypt
 from datetime import datetime, timedelta, timezone
 from app.schemas import TokenPayload
 import jwt
@@ -8,15 +9,31 @@ SECRET_KEY = os.getenv("SECRET_KEY", "default_fallback_key")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 20))
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 def verify_password(plain, hashed): 
     # Verifica se a senha passada bate com a hash da comunidade
-    return pwd_context.verify(plain, hashed)
+    return bcrypt.checkpw(
+        bytes(plain, encoding="utf-8"),
+        hashed,
+    )
 
 def hash_password(password): 
     # Retorna a senha em hash para salvar no banco de dados
-    return pwd_context.hash(password)
+    return bcrypt.hashpw(
+        bytes(password, encoding="utf-8"),
+        bcrypt.gensalt(),
+    )
+
+
+
+#pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+#def verify_password(plain, hashed): 
+#    # Verifica se a senha passada bate com a hash da comunidade
+#    return pwd_context.verify(plain, hashed)
+#
+#def hash_password(password): 
+#    # Retorna a senha em hash para salvar no banco de dados
+#    return pwd_context.hash(password)
 
 def create_access_token(data: TokenPayload, expires_delta: timedelta | None = None):
     """
