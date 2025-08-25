@@ -6,25 +6,23 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from app.schemas import Token, TokenPayload
 from app.services import auth
 from app.services.database.models import Community as DBCommunity
+from app.services.database.orm.community import get_community_by_username
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/authentication/token")
 
 
 def setup():
-    router = APIRouter(prefix="/authentication", tags=["authentication"])
-
-    async def authenticate_community(
-        request: Request, username: str, password: str
-    ):
-        # Valida se o usuário existe e se a senha está correta
-        found_community = await get_community_by_username(
-            username=username, session=request.app.db_session_factory
-        )
-        if not found_community or not auth.verify_password(
-            password, found_community.password
-        ):
+    router = APIRouter(prefix='/authentication', tags=['authentication'])
+    async def authenticate_community( request: Request , username: str, password: str):
+       # Valida se o usuário existe e se a senha está correta
+       session: AsyncSession = request.app.db_session_factory
+       found_community = await get_community_by_username(
+                                    username=username,
+                                    session= session
+                                    )
+       if not found_community or not auth.verify_password(password, found_community.password):
             return None
-        return found_community
+       return found_community
 
     # Teste
 
@@ -50,11 +48,7 @@ def setup():
         request: Request, form_data: OAuth2PasswordRequestForm = Depends()
     ):
         # Rota de login: valida credenciais e retorna token JWT
-        community = await authenticate_community(
-            form_data.username,
-            form_data.password,
-            request.app.db_session_factory,
-        )
+        community = await authenticate_community( request, form_data.username, form_data.password)
         if not community:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
