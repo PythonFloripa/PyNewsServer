@@ -1,5 +1,4 @@
-from collections.abc import AsyncGenerator, Generator
-from unittest.mock import AsyncMock
+from collections.abc import AsyncGenerator
 
 import pytest
 import pytest_asyncio
@@ -10,7 +9,8 @@ from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.main import app
-#from app.main import get_db_session
+
+# from app.main import get_db_session
 
 # Importar todos os modelos SQLModel a serem usados
 # (necessários para as validações de modelo)
@@ -40,7 +40,9 @@ async def get_db_session_test() -> AsyncGenerator[AsyncSession, None]:
 async def setup_database():
     async with test_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
-    yield test_engine    
+    yield test_engine
+    async with test_engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.drop_all)
 
 
 @pytest_asyncio.fixture(scope="function")
@@ -50,10 +52,11 @@ async def session() -> AsyncGenerator[AsyncSession, None]:
     yield session
     await session.close()
 
+
 @pytest_asyncio.fixture
 async def test_app(session) -> FastAPI:
     mock_db_connection = session
-    setattr(app, 'db_session_factory', mock_db_connection)
+    setattr(app, "db_session_factory", mock_db_connection)
     return app
 
 
