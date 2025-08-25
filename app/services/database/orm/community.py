@@ -6,8 +6,7 @@ from app.services.database.models import Community
 
 async def get_community_by_username(
     username: str,
-    session: AsyncSession,
-) -> Optional[Community]:
+    session: AsyncSession,) -> Optional[Community]:
     """
     Busca e retorna um membro da comunidade pelo nome de usuário.
     Retorna None se o usuário não for encontrado.
