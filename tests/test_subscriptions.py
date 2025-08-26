@@ -1,10 +1,8 @@
 import pytest
 import pytest_asyncio
-
+from services.database.models import Community, Subscription
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
-
-from services.database.models import Community, Subscription
 
 
 @pytest_asyncio.fixture
@@ -26,7 +24,9 @@ async def test_insert_subscription(session: AsyncSession, community: Community):
     session.add(subscription)
     await session.commit()
 
-    statement = select(Subscription).where(Subscription.email == "teste@teste.com")
+    statement = select(Subscription).where(
+        Subscription.email == "teste@teste.com"
+    )
     result = await session.exec(statement)
     found = result.first()
 
