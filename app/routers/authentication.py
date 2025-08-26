@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidTokenError
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.schemas import Token, TokenPayload
+from app.schemas import Community, Token, TokenPayload
 from app.services import auth
 from app.services.database.models import Community as DBCommunity
 from app.services.database.orm.community import get_community_by_username
@@ -107,7 +107,7 @@ def setup():
             "expires_in": expires_in,
         }
 
-    @router.get("/me", response_model=DBCommunity)
+    @router.get("/me", response_model=Community)
     async def read_community_me(
         current_community: Annotated[
             DBCommunity, Depends(get_current_active_community)
