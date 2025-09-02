@@ -8,7 +8,7 @@ class Library(SQLModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     library_name: str
-    user_email: str
+    email: str
     releases_url: str
     logo: str
     community_id: Optional[int] = Field(
