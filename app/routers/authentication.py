@@ -31,6 +31,7 @@ def setup():
             return None
         return found_community
 
+    # Teste
     async def get_current_community(
         request: Request,
         token: Annotated[str, Depends(oauth2_scheme)],
