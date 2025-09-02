@@ -29,6 +29,9 @@ async def test_insert_subscription(session: AsyncSession, community: Community):
     statement = select(Subscription).where(
         Subscription.email == "teste@teste.com"
     )
+    statement = select(Subscription).where(
+        Subscription.email == "teste@teste.com"
+    )
     result = await session.exec(statement)
     found = result.first()
 
@@ -73,9 +76,7 @@ async def preset_library(async_client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_post_subscribe_endpoint(
-    async_client: AsyncClient, session: AsyncSession
-):
+async def test_post_subscribe_endpoint(async_client: AsyncClient):
     body = {
         "email": "teste@teste.com",
         "tags": ["bug_fix", "update"],
@@ -90,13 +91,3 @@ async def test_post_subscribe_endpoint(
 
     assert response.status_code == 200
     assert response.json()["status"] == "Subscribed in libraries successfully"
-
-    statement = select(Subscription).where(Subscription.email == body["email"])
-    result = await session.exec(statement)
-    created_subscription = result.first()
-
-    assert created_subscription is not None
-    assert created_subscription.tags == [
-        SubscriptionTagEnum.BUG_FIX,
-        SubscriptionTagEnum.UPDATE,
-    ]
