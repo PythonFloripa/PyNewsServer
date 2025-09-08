@@ -1,6 +1,12 @@
-from fastapi import APIRouter, Request, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Request, status
+from fastapi.params import Header
 from pydantic import BaseModel
+from routers.authentication import get_current_active_community
 from services.database.orm.news import get_news_by_query_params
+
+from app.services.database.models import Community as DBCommunity
 
 
 class NewsPostResponse(BaseModel):
@@ -35,16 +41,25 @@ def setup():
         summary="Get News",
         description="Retrieves news filtered by user and query params",
     )
-    async def get_news(request: Request):
+    async def get_news(
+        request: Request,
+        current_community: Annotated[
+            DBCommunity, Depends(get_current_active_community)
+        ],
+        id: str | None = None,
+        user_email: str | None = Header(..., alias="user-email"),
+        category: str | None = None,
+        tags: str | None = None,
+    ):
         """
         Get News endpoint that retrieves news filtered by user and query params.
         """
         news_list = await get_news_by_query_params(
             session=request.app.db_session_factory,
-            id=request.query_params.get("id"),
-            user_email=request.headers.get("user-email"),
-            category=request.query_params.get("category"),
-            tags=request.query_params.get("tags"),
+            id=id,
+            email=user_email,
+            category=category,
+            tags=tags,
         )
         return NewsGetResponse(news_list=news_list)
 
