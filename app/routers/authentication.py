@@ -4,6 +4,8 @@ import jwt
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidTokenError
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.schemas import Community, Token, TokenPayload
@@ -12,6 +14,7 @@ from app.services.database.models import Community as DBCommunity
 from app.services.database.orm.community import get_community_by_username
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/authentication/token")
+limiter = Limiter(key_func=get_remote_address)
 
 
 def setup():
@@ -88,6 +91,7 @@ def setup():
     # Teste
 
     @router.post("/token", response_model=Token)
+    @limiter.limit("60/minute")
     async def login_for_access_token(
         request: Request, form_data: OAuth2PasswordRequestForm = Depends()
     ):
@@ -109,6 +113,7 @@ def setup():
         }
 
     @router.get("/me", response_model=Community)
+    @limiter.limit("60/minute")
     async def read_community_me(
         current_community: Annotated[
             DBCommunity, Depends(get_current_active_community)
