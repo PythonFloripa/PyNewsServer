@@ -1,3 +1,4 @@
+API_CONTAINER_NAME=pynews-server
 .PHONY: help build up down logs test lint format clean dev prod restart health
 
 # Colors for terminal output
@@ -73,3 +74,7 @@ shell: ## Entra no shell do container
 setup: install build up ## Setup completo do projeto
 	@echo "$(GREEN)Setup completo realizado!$(NC)"
 	@echo "$(GREEN)Acesse: http://localhost:8000/docs$(NC)"
+
+
+docker/test:
+	docker exec -e PYTHONPATH=/app $(API_CONTAINER_NAME) pytest -s --cov-report=term-missing --cov-report html --cov-report=xml --cov=app tests/

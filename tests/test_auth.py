@@ -1,26 +1,9 @@
 import pytest
-import pytest_asyncio
 from fastapi import status
 from httpx import AsyncClient
-from services.database.models import Community
-from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.services.auth import hash_password
-
-password = "123Asd!@#"
-
-
-# gerar usuario para autenticação
-@pytest_asyncio.fixture
-async def community(session: AsyncSession):
-    hashed_password = hash_password(password)
-    community = Community(
-        username="username", email="username@test.com", password=hashed_password
-    )
-    session.add(community)
-    await session.commit()
-    await session.refresh(community)
-    return community
+from app.services.database.models import Community
+from tests.conftest import CommunityCredentials
 
 
 @pytest.mark.asyncio
@@ -33,7 +16,10 @@ async def test_authentication_token_endpoint(
     """
     # 1. Teste de login com credenciais válidas
     # O OAuth2PasswordRequestForm espera 'username' e 'password'
-    form_data = {"username": community.username, "password": password}
+    form_data = {
+        "username": community.username,
+        "password": CommunityCredentials.password,
+    }
 
     response = await async_client.post(
         "/api/authentication/token",
@@ -66,16 +52,18 @@ async def test_authentication_token_endpoint(
 
 @pytest.mark.asyncio
 async def test_community_me_with_valid_token(
-    async_client: AsyncClient, community: Community
+    async_client: AsyncClient,
+    community: Community,
 ):
     """
-    Testa se o endpoint protegido /authenticate/me/ retorna os dados do usuário com um token válido.
+    Testa se o endpoint protegido /authenticate/me/ retorna os dados do usuário
+    com um token válido.
     """
     # 1. Obter um token de acesso primeiro
     form_data = {
         "grant_type": "password",
         "username": community.username,
-        "password": password,
+        "password": CommunityCredentials.password,
     }
     token_response = await async_client.post(
         "/api/authentication/token",
