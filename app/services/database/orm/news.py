@@ -42,3 +42,18 @@ async def get_news_by_query_params(
     statement = select(News).where(*filters)
     results = await session.exec(statement)
     return results.all()
+
+
+async def like_news(
+    session: AsyncSession, news_id: str, user_email: str
+) -> int | None:
+    statement = select(News).where(News.id == news_id)
+    results = await session.exec(statement)
+    news_item = results.first()
+    if news_item:
+        news_item.likes += 1
+        session.add(news_item)
+        await session.commit()
+        await session.refresh(news_item)
+        return news_item.likes
+    return None
