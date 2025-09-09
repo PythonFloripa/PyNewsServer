@@ -284,3 +284,40 @@ async def test_news_integration(
         == news_data["social_media_url"]
     )
     assert data["news_list"][0]["likes"] == 0
+
+
+@pytest.mark.asyncio
+async def test_insert_news_likes_endpoint(
+    session: AsyncSession,
+    async_client: AsyncClient,
+    community: Community,
+    valid_auth_headers: Mapping[str, str],
+):
+    news_data = {
+        "title": "Test News",
+        "content": "Test news content.",
+        "category": "test_category",
+        "tags": "test_tag",
+        "source_url": "https://example.com/test-news",
+        "social_media_url": "https://test.com/test_news",
+    }
+    response = await async_client.post(
+        "/api/news", json=news_data, headers=valid_auth_headers
+    )
+    assert response.status_code == status.HTTP_200_OK
+    statement = select(News).where(News.title == news_data["title"])
+    result = await session.exec(statement)
+    stored_news = result.first()
+    assert stored_news is not None
+    assert stored_news.likes == 0
+
+    response = await async_client.post(
+        f"/api/news/{stored_news.id}/like",
+        json=news_data,
+        headers=valid_auth_headers,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    statement = select(News).where(News.title == news_data["title"])
+    result = await session.exec(statement)
+    stored_news = result.first()
+    assert stored_news.likes == 1

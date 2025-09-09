@@ -7,7 +7,11 @@ from pydantic import BaseModel
 from app.routers.authentication import get_current_active_community
 from app.schemas import News
 from app.services.database.models import Community as DBCommunity
-from app.services.database.orm.news import create_news, get_news_by_query_params
+from app.services.database.orm.news import (
+    create_news,
+    get_news_by_query_params,
+    like_news,
+)
 
 
 class NewsPostResponse(BaseModel):
@@ -17,6 +21,10 @@ class NewsPostResponse(BaseModel):
 class NewsGetResponse(BaseModel):
     status: str = "Lista de News Obtida"
     news_list: list = []
+
+
+class NewsLikeResponse(BaseModel):
+    total_likes: int | None
 
 
 def setup():
@@ -75,5 +83,30 @@ def setup():
             tags=tags,
         )
         return NewsGetResponse(news_list=news_list)
+
+    @router.post(
+        path="/{news_id}/like",
+        response_model=NewsPostResponse,
+        status_code=status.HTTP_200_OK,
+        summary="News like endpoint",
+        description="Allows user to like a news item",
+    )
+    async def post_like(
+        request: Request,
+        current_community: Annotated[
+            DBCommunity, Depends(get_current_active_community)
+        ],
+        news_id,
+        user_email: str = Header(..., alias="user-email"),
+    ):
+        """
+        News endpoint where user can set like to news item.
+        """
+        total_likes = await like_news(
+            session=request.app.db_session_factory,
+            news_id=news_id,
+            user_email=user_email,
+        )
+        return NewsLikeResponse(total_likes=total_likes)
 
     return router
