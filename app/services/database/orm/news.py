@@ -5,6 +5,22 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 
+async def create_news(session: AsyncSession, news: dict) -> None:
+    _news = News(
+        title=news["title"],
+        content=news["content"],
+        category=news["category"],
+        user_email=news["user_email"],
+        source_url=news["source_url"],
+        tags=news["tags"] or "",
+        social_media_url=news["social_media_url"] or "",
+        likes=news["likes"],
+    )
+    session.add(_news)
+    await session.commit()
+    await session.refresh(_news)
+
+
 async def get_news_by_query_params(
     session: AsyncSession,
     email: Optional[str] = None,

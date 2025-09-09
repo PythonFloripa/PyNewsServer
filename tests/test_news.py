@@ -91,9 +91,54 @@ async def test_post_news_endpoint(
     async_client: AsyncClient, valid_auth_headers: Mapping[str, str]
 ):
     """Test the news endpoint returns correct status."""
-    response = await async_client.post("/api/news", headers=valid_auth_headers)
+    news_data = {
+        "title": "Test News",
+        "content": "Test news content.",
+        "category": "test_category",
+        "source_url": "https://example.com/test-news",
+    }
+    response = await async_client.post(
+        "/api/news", headers=valid_auth_headers, json=news_data
+    )
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {"status": "News Criada"}
+
+
+@pytest.mark.asyncio
+async def test_insert_news_via_post_news_endpoint(
+    session: AsyncSession,
+    async_client: AsyncClient,
+    community: Community,
+    valid_auth_headers: Mapping[str, str],
+):
+    news_data = {
+        "title": "Test News",
+        "content": "Test news content.",
+        "category": "test_category",
+        "tags": "test_tag",
+        "source_url": "https://example.com/test-news",
+        "social_media_url": "https://test.com/test_news",
+    }
+    response = await async_client.post(
+        "/api/news", json=news_data, headers=valid_auth_headers
+    )
+    assert response.status_code == status.HTTP_200_OK
+    statement = select(News).where(News.title == news_data["title"])
+    result = await session.exec(statement)
+    stored_news = result.first()
+    assert stored_news is not None
+    assert stored_news.title == news_data["title"]
+    assert stored_news.content == news_data["content"]
+    assert stored_news.category == news_data["category"]
+    assert stored_news.user_email == community.email
+    assert stored_news.source_url == news_data["source_url"]
+    assert stored_news.tags == news_data["tags"]
+    assert stored_news.social_media_url == news_data["social_media_url"]
+    assert stored_news.likes == 0
+    assert isinstance(stored_news.created_at, datetime)
+    assert isinstance(stored_news.updated_at, datetime)
+    assert stored_news.created_at <= datetime.now()
+    assert stored_news.updated_at >= stored_news.created_at
 
 
 @pytest.mark.asyncio
@@ -198,3 +243,43 @@ async def test_get_news_empty_result(
     assert response.status_code == status.HTTP_200_OK
     assert "news_list" in data
     assert data["news_list"] == []
+
+
+@pytest.mark.asyncio
+async def test_news_integration(
+    session: AsyncSession,
+    async_client: AsyncClient,
+    community: Community,
+    valid_auth_headers: Mapping[str, str],
+):
+    news_data = {
+        "title": "Test News",
+        "content": "Test news content.",
+        "category": "test_category",
+        "tags": "test_tag",
+        "source_url": "https://example.com/test-news",
+        "social_media_url": "https://test.com/test_news",
+    }
+    post_response = await async_client.post(
+        "/api/news", json=news_data, headers=valid_auth_headers
+    )
+    assert post_response.status_code == status.HTTP_200_OK
+    get_response = await async_client.get(
+        "/api/news",
+        headers=valid_auth_headers,
+    )
+    data = get_response.json()
+    assert get_response.status_code == status.HTTP_200_OK
+    assert "news_list" in data
+    assert len(data["news_list"]) == 1
+    assert data["news_list"][0]["title"] == news_data["title"]
+    assert data["news_list"][0]["content"] == news_data["content"]
+    assert data["news_list"][0]["category"] == news_data["category"]
+    assert data["news_list"][0]["user_email"] == community.email
+    assert data["news_list"][0]["source_url"] == news_data["source_url"]
+    assert data["news_list"][0]["tags"] == news_data["tags"]
+    assert (
+        data["news_list"][0]["social_media_url"]
+        == news_data["social_media_url"]
+    )
+    assert data["news_list"][0]["likes"] == 0

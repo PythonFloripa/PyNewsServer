@@ -21,6 +21,16 @@ class CommunityInDB(Community):
     password: str
 
 
+class News(BaseModel):
+    title: str
+    content: str
+    category: str
+    tags: str | None = None
+    source_url: str
+    social_media_url: str | None = None
+    likes: int = 0
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str
