@@ -1,8 +1,8 @@
 import pytest
 from fastapi import status
 from httpx import AsyncClient
-from services.database.models import Community
 
+from app.services.database.models import Community
 from tests.conftest import CommunityCredentials
 
 

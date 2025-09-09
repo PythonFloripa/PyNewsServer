@@ -1,10 +1,11 @@
 import pytest
 import pytest_asyncio
 from httpx import AsyncClient
-from schemas import SubscriptionTagEnum
-from services.database.models import Community, Subscription
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+from app.schemas import SubscriptionTagEnum
+from app.services.database.models import Community, Subscription
 
 
 @pytest_asyncio.fixture

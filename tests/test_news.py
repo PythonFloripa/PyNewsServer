@@ -5,9 +5,10 @@ import pytest
 import pytest_asyncio
 from fastapi import status
 from httpx import AsyncClient
-from services.database.models import Community, News
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+from app.services.database.models import Community, News
 
 
 @pytest_asyncio.fixture

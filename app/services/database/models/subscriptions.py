@@ -1,8 +1,9 @@
 from typing import List, Optional
 
-from schemas import SubscriptionTagEnum
 from sqlalchemy import JSON, Column
 from sqlmodel import Field, SQLModel
+
+from app.schemas import SubscriptionTagEnum
 
 
 class Subscription(SQLModel, table=True):

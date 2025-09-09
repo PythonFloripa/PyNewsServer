@@ -3,11 +3,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.params import Header
 from pydantic import BaseModel
-from routers.authentication import get_current_active_community
-from services.database.orm.news import create_news, get_news_by_query_params
 
+from app.routers.authentication import get_current_active_community
 from app.schemas import News
 from app.services.database.models import Community as DBCommunity
+from app.services.database.orm.news import create_news, get_news_by_query_params
 
 
 class NewsPostResponse(BaseModel):

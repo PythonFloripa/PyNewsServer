@@ -1,8 +1,9 @@
 from typing import Optional
 
-from services.database.models import News
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+from app.services.database.models import News
 
 
 async def create_news(session: AsyncSession, news: dict) -> None:
