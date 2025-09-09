@@ -36,8 +36,11 @@ def setup():
         library = Library(
             library_name=body.library_name,
             user_email="",  # TODO: Considerar obter o email do usuário autenticado
-            releases_url=body.releases_url.encoded_string(),
             logo=body.logo.encoded_string(),
+            version=body.version,
+            release_date=body.release_date,
+            releases_doc_url=body.releases_doc_url.encoded_string(),
+            fixed_release_url=body.fixed_release_url.encoded_string(),
         )
         try:
             await insert_library(library, request.app.db_session_factory)
