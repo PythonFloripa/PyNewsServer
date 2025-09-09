@@ -22,9 +22,6 @@ async def lifespan(app: FastAPI):
         pass
 
 
-appLimiter = limiter
-
-
 app = FastAPI(
     lifespan=lifespan,
     title="pynews-server",
@@ -32,7 +29,7 @@ app = FastAPI(
 )
 
 
-app.state.limiter = appLimiter
+app.state.limiter = limiter
 app.add_exception_handler(429, _rate_limit_exceeded_handler)
 
 app.include_router(setup_router_v2(), prefix="/api")
