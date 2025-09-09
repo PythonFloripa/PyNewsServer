@@ -1,8 +1,9 @@
 from typing import Optional
 
-from services.database.models import News
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+from app.services.database.models import News
 
 
 async def get_news_by_query_params(

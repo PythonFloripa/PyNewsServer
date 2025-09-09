@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request, status
 from pydantic import BaseModel
-from services.database.orm.news import get_news_by_query_params
+
+from app.services.database.orm.news import get_news_by_query_params
 
 
 class NewsPostResponse(BaseModel):
