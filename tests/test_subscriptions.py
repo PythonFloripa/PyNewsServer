@@ -1,10 +1,11 @@
 import pytest
 import pytest_asyncio
 from httpx import AsyncClient
-from schemas import LibraryTagEnum
-from services.database.models import Community, Subscription
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+from app.enums import LibraryTagUpdatesEnum
+from app.services.database.models import Community, Subscription
 
 
 @pytest_asyncio.fixture
@@ -20,7 +21,7 @@ async def community(session: AsyncSession):
 async def test_insert_subscription(session: AsyncSession, community: Community):
     subscription = Subscription(
         email="teste@teste.com",
-        tags=[LibraryTagEnum.BUG_FIX, LibraryTagEnum.UPDATES],
+        tags=[LibraryTagUpdatesEnum.BUG_FIX, LibraryTagUpdatesEnum.UPDATE],
         community_id=community.id,
     )
     session.add(subscription)
@@ -38,8 +39,8 @@ async def test_insert_subscription(session: AsyncSession, community: Community):
     assert found is not None
     assert found.email == "teste@teste.com"
     assert found.tags == [
-        LibraryTagEnum.BUG_FIX,
-        LibraryTagEnum.UPDATES,
+        LibraryTagUpdatesEnum.BUG_FIX,
+        LibraryTagUpdatesEnum.UPDATE,
     ]
     assert found.community_id == community.id
 

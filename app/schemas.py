@@ -1,31 +1,26 @@
 from datetime import date
-from enum import Enum
 from typing import List
 
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel
 
-
-class LibraryTagEnum(str, Enum):
-    UPDATES = "updates"
-    BUG_FIX = "bug_fix"
-    NEW_FEATURE = "new_feature"
-    SECURITY_FIX = "security_fix"
-    DEPRECATION = "deprecation"
+from app.enums import LibraryTagUpdatesEnum
 
 
 class LibraryNews(BaseModel):
-    tag: LibraryTagEnum
+    tag: LibraryTagUpdatesEnum
     description: str
 
 
 class Library(BaseModel):
+    id: int | None = None
     library_name: str
     news: List[LibraryNews]
-    logo: HttpUrl
+    logo: str
     version: str
     release_date: date
-    releases_doc_url: HttpUrl
-    fixed_release_url: HttpUrl
+    releases_doc_url: str
+    fixed_release_url: str
+    language: str
 
 
 # Community / User Class
@@ -37,6 +32,16 @@ class Community(BaseModel):
 # Extends Community Class with hashed password
 class CommunityInDB(Community):
     password: str
+
+
+class News(BaseModel):
+    title: str
+    content: str
+    category: str
+    tags: str | None = None
+    source_url: str
+    social_media_url: str | None = None
+    likes: int = 0
 
 
 class Token(BaseModel):
@@ -51,5 +56,5 @@ class TokenPayload(BaseModel):
 
 class Subscription(BaseModel):
     email: str
-    tags: List[LibraryTagEnum]
+    tags: List[LibraryTagUpdatesEnum]
     libraries_list: List[str]

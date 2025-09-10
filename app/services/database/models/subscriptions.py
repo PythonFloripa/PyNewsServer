@@ -1,8 +1,9 @@
 from typing import List, Optional
 
-from schemas import LibraryTagEnum
 from sqlalchemy import JSON, Column
 from sqlmodel import Field, SQLModel
+
+from app.enums import LibraryTagUpdatesEnum
 
 
 class Subscription(SQLModel, table=True):
@@ -10,7 +11,7 @@ class Subscription(SQLModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     email: str
-    tags: List[LibraryTagEnum] = Field(sa_column=Column(JSON))
+    tags: List[LibraryTagUpdatesEnum] = Field(sa_column=Column(JSON))
     community_id: Optional[int] = Field(
         default=None, foreign_key="communities.id"
     )

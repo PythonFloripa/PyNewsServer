@@ -1,10 +1,14 @@
+from typing import List
+
 from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel
 
 from app.schemas import Library as LibrarySchema
+from app.schemas import LibraryNews
 from app.schemas import Subscription as SubscriptionSchema
 from app.services.database.models import Library, Subscription
 from app.services.database.orm.library import (
+    get_libraries_by_language,
     get_library_ids_by_multiple_names,
     insert_library,
 )
@@ -22,6 +26,36 @@ class SubscribeLibraryResponse(BaseModel):
 def setup():
     router = APIRouter(prefix="/libraries", tags=["libraries"])
 
+    @router.get(
+        "",
+        response_model=List[LibrarySchema],
+        status_code=status.HTTP_200_OK,
+        summary="Get libraries by language",
+        description="Get libraries by language",
+    )
+    async def get_by_language(request: Request, language: str):
+        libraryList = await get_libraries_by_language(
+            language=language, session=request.app.db_session_factory
+        )
+        return [
+            LibrarySchema(
+                library_name=libraryDb.library_name,
+                news=[
+                    LibraryNews(
+                        tag=news["tag"], description=news["description"]
+                    )
+                    for news in libraryDb.news
+                ],
+                logo=libraryDb.logo,
+                version=libraryDb.version,
+                release_date=libraryDb.release_date,
+                releases_doc_url=libraryDb.releases_doc_url,
+                fixed_release_url=libraryDb.fixed_release_url,
+                language=libraryDb.language,
+            )
+            for libraryDb in libraryList
+        ]
+
     @router.post(
         "",
         response_model=LibraryResponse,
@@ -35,12 +69,13 @@ def setup():
     ):
         library = Library(
             library_name=body.library_name,
-            user_email="",  # TODO: Considerar obter o email do usuário autenticado
-            logo=body.logo.encoded_string(),
+            news=[news.model_dump() for news in body.news],
+            logo=body.logo,
             version=body.version,
             release_date=body.release_date,
-            releases_doc_url=body.releases_doc_url.encoded_string(),
-            fixed_release_url=body.fixed_release_url.encoded_string(),
+            releases_doc_url=body.releases_doc_url,
+            fixed_release_url=body.fixed_release_url,
+            language=body.language,
         )
         try:
             await insert_library(library, request.app.db_session_factory)
