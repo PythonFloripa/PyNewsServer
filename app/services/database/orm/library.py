@@ -26,3 +26,14 @@ async def get_library_ids_by_multiple_names(
     )
     result = await session.exec(statement)
     return [id for id in result.all() if id is not None]
+
+
+async def get_libraries_by_language(
+    language: str,
+    session: AsyncSession,
+) -> List[Library]:
+    statement = select(Library).where(
+        func.lower(Library.language) == language.lower()
+    )
+    result = await session.exec(statement)
+    return [library for library in result.all()]
