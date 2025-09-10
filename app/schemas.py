@@ -1,13 +1,26 @@
-from enum import Enum
+from datetime import date
 from typing import List
 
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel
+
+from app.enums import LibraryTagUpdatesEnum
+
+
+class LibraryNews(BaseModel):
+    tag: LibraryTagUpdatesEnum
+    description: str
 
 
 class Library(BaseModel):
+    id: int | None = None
     library_name: str
-    releases_url: HttpUrl
-    logo: HttpUrl
+    news: List[LibraryNews]
+    logo: str
+    version: str
+    release_date: date
+    releases_doc_url: str
+    fixed_release_url: str
+    language: str
 
 
 # Community / User Class
@@ -41,15 +54,7 @@ class TokenPayload(BaseModel):
     username: str
 
 
-# Subscription Class
-class SubscriptionTagEnum(str, Enum):
-    UPDATE = "update"
-    BUG_FIX = "bug_fix"
-    NEW_FEATURE = "new_feature"
-    SECURITY_FIX = "security_fix"
-
-
 class Subscription(BaseModel):
     email: str
-    tags: List[SubscriptionTagEnum]
+    tags: List[LibraryTagUpdatesEnum]
     libraries_list: List[str]
