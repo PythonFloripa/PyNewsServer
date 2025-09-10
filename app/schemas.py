@@ -23,6 +23,11 @@ class Library(BaseModel):
     language: str
 
 
+class LibraryRequest(BaseModel):
+    library_name: str
+    library_home_page: str
+
+
 # Community / User Class
 class Community(BaseModel):
     username: str
@@ -55,6 +60,5 @@ class TokenPayload(BaseModel):
 
 
 class Subscription(BaseModel):
-    email: str
     tags: List[LibraryTagUpdatesEnum]
     libraries_list: List[str]

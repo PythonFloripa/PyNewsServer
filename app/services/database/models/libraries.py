@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import List, Optional
 
 from sqlalchemy import JSON, Column
@@ -19,4 +19,9 @@ class Library(SQLModel, table=True):
     language: str
     community_id: Optional[int] = Field(
         default=None, foreign_key="communities.id"
+    )
+    created_at: Optional[datetime] = Field(default_factory=datetime.now)
+    updated_at: Optional[datetime] = Field(
+        default_factory=datetime.now,
+        sa_column_kwargs={"onupdate": datetime.now},
     )

@@ -1,22 +1,19 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
-from sqlalchemy import JSON, Column
 from sqlmodel import Field, SQLModel
 
-from app.enums import LibraryTagUpdatesEnum
 
-
-class Subscription(SQLModel, table=True):
-    __tablename__ = "subscriptions"  # type: ignore
+class LibraryRequest(SQLModel, table=True):
+    __tablename__ = "libraries_request"
 
     id: Optional[int] = Field(default=None, primary_key=True)
     user_email: str
-    tags: List[LibraryTagUpdatesEnum] = Field(sa_column=Column(JSON))
+    library_name: str
+    library_home_page: str
     community_id: Optional[int] = Field(
         default=None, foreign_key="communities.id"
     )
-    library_id: Optional[int] = Field(default=None, foreign_key="libraries.id")
     created_at: Optional[datetime] = Field(default_factory=datetime.now)
     updated_at: Optional[datetime] = Field(
         default_factory=datetime.now,
