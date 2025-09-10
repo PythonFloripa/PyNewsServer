@@ -2,13 +2,15 @@ from collections.abc import AsyncGenerator
 
 import pytest
 import pytest_asyncio
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.main import app
+from app.services.auth import hash_password
+from app.services.database.models.communities import Community
 
 # from app.main import get_db_session
 
@@ -73,8 +75,46 @@ async def async_client(test_app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
         yield client
 
 
+class CommunityCredentials:
+    username: str = "community_username"
+    email: str = "community_name@test.com"
+    password: str = "community_password"
+    hashed_password: str = hash_password(password)
+
+
+@pytest_asyncio.fixture
+async def community(session: AsyncSession):
+    community = Community(
+        username=CommunityCredentials.username,
+        email=CommunityCredentials.email,
+        password=CommunityCredentials.hashed_password,
+    )
+    session.add(community)
+    await session.commit()
+    await session.refresh(community)
+    return community
+
+
+@pytest_asyncio.fixture()
+async def token(async_client: AsyncGenerator[AsyncClient, None]) -> str:
+    form_data = {
+        "grant_type": "password",
+        "username": CommunityCredentials.username,
+        "password": CommunityCredentials.password,
+    }
+    token_response = await async_client.post(
+        "/api/authentication/token",
+        data=form_data,
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+    )
+    assert token_response.status_code == status.HTTP_200_OK
+    return token_response.json()["access_token"]
+
+
 @pytest.fixture
-def mock_headers():
+def valid_auth_headers(community: Community, token: str) -> dict[str, str]:
     return {
-        "header1": "value1",
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+        "user-email": CommunityCredentials.email,
     }

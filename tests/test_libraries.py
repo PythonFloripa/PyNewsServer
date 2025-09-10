@@ -1,9 +1,10 @@
 import pytest
 import pytest_asyncio
 from httpx import AsyncClient
-from services.database.models import Community, Library
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+from app.services.database.models import Community, Library
 
 
 @pytest_asyncio.fixture
