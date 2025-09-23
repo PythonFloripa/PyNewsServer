@@ -1,16 +1,15 @@
+import os
 from typing import Annotated
 
+import jwt
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.params import Header
 from pydantic import BaseModel
 
+import app.services.database.orm.news as orm_news
 from app.routers.authentication import get_current_active_community
 from app.schemas import News
 from app.services.database.models import Community as DBCommunity
-import app.services.database.orm.news as orm_news
-
-import os
-import jwt
 
 SECRET_KEY = os.getenv("SECRET_KEY", "default_fallback_key")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
@@ -28,12 +27,15 @@ class NewsGetResponse(BaseModel):
 class NewsLikeResponse(BaseModel):
     total_likes: int | None
 
+
 class LikeRequest(BaseModel):
     email: str
+
 
 def encode_email(email: str) -> str:
     """Encodes the email to be safely stored in database."""
     return jwt.encode({"email": email}, SECRET_KEY, algorithm=ALGORITHM)
+
 
 def setup():
     router = APIRouter(prefix="/news", tags=["news"])
