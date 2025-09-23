@@ -318,7 +318,7 @@ async def test_news_likes_endpoint(
     response = await async_client.post(
         f"/api/news/{stored_news.id}/like",
         json={"email": emails[0]},
-        headers=valid_auth_headers,
+        headers={**valid_auth_headers, "user-email": emails[0]},
     )
     assert response.status_code == status.HTTP_200_OK
     statement = select(News).where(News.title == news_data["title"])
@@ -329,8 +329,7 @@ async def test_news_likes_endpoint(
 
     response = await async_client.post(
         f"/api/news/{stored_news.id}/like",
-        json={"email": emails[1]},
-        headers=valid_auth_headers,
+        headers={**valid_auth_headers, "user-email": emails[1]},
     )
     assert response.status_code == status.HTTP_200_OK
     statement = select(News).where(News.title == news_data["title"])
@@ -345,8 +344,7 @@ async def test_news_likes_endpoint(
     # Remove likes
     response = await async_client.delete(
         f"/api/news/{stored_news.id}/like",
-        params={"email": emails[0]},
-        headers=valid_auth_headers,
+        headers={**valid_auth_headers, "user-email": emails[0]},
     )
     assert response.status_code == status.HTTP_200_OK
     statement = select(News).where(News.title == news_data["title"])
@@ -357,8 +355,7 @@ async def test_news_likes_endpoint(
 
     response = await async_client.delete(
         f"/api/news/{stored_news.id}/like",
-        params={"email": emails[1]},
-        headers=valid_auth_headers,
+        headers={**valid_auth_headers, "user-email": emails[1]},
     )
     assert response.status_code == status.HTTP_200_OK
     statement = select(News).where(News.title == news_data["title"])
