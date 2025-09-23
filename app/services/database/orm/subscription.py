@@ -14,18 +14,21 @@ async def upsert_multiple_subscription(
     if not subscriptions:
         return []
 
-    incoming_map: Dict[Tuple[str, int], Subscription] = {
-        (sub.email, sub.library_id): sub for sub in subscriptions
+    incoming_map: Dict[Tuple[str, int | None], Subscription] = {
+        (sub.user_email, sub.library_id): sub for sub in subscriptions
     }
 
     keys_to_check = incoming_map.keys()
     stmt = select(Subscription).where(
-        tuple_(Subscription.email, Subscription.library_id).in_(keys_to_check)
+        tuple_(Subscription.user_email, Subscription.library_id).in_(
+            keys_to_check
+        )
     )
+
     result = await session.exec(stmt)
     existing_subscriptions = result.all()
-    existing_map: Dict[Tuple[str, int], Subscription] = {
-        (sub.email, sub.library_id): sub for sub in existing_subscriptions
+    existing_map: Dict[Tuple[str, int | None], Subscription] = {
+        (sub.user_email, sub.library_id): sub for sub in existing_subscriptions
     }
 
     new_subscriptions: List[Subscription] = []
