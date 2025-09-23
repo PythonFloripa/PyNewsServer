@@ -1,3 +1,4 @@
+import ast
 from typing import Optional
 
 from sqlmodel import select
@@ -42,3 +43,41 @@ async def get_news_by_query_params(
     statement = select(News).where(*filters)
     results = await session.exec(statement)
     return results.all()
+
+
+async def like_news(
+    session: AsyncSession, news_id: str, email: str
+) -> int | None:
+    statement = select(News).where(News.id == news_id)
+    results = await session.exec(statement)
+    news_item = results.first()
+    if news_item:
+        users = ast.literal_eval(news_item.user_email_list)
+        if email not in users:
+            users.append(email)
+            news_item.user_email_list = str(users)
+            news_item.likes += 1
+            session.add(news_item)
+            await session.commit()
+            await session.refresh(news_item)
+            return news_item.likes
+    return None
+
+
+async def delete_like(
+    session: AsyncSession, news_id: str, email: str
+) -> int | None:
+    statement = select(News).where(News.id == news_id)
+    results = await session.exec(statement)
+    news_item = results.first()
+    if news_item:
+        users = ast.literal_eval(news_item.user_email_list)
+        if email in users:
+            users.remove(email)
+            news_item.user_email_list = str(users)
+            news_item.likes -= 1
+            session.add(news_item)
+            await session.commit()
+            await session.refresh(news_item)
+            return news_item.likes
+    return None
