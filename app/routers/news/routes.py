@@ -7,11 +7,13 @@ from pydantic import BaseModel
 from app.routers.authentication import get_current_active_community
 from app.schemas import News
 from app.services.database.models import Community as DBCommunity
-from app.services.database.orm.news import (
-    create_news,
-    get_news_by_query_params,
-    like_news,
-)
+import app.services.database.orm.news as orm_news
+
+import os
+import jwt
+
+SECRET_KEY = os.getenv("SECRET_KEY", "default_fallback_key")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
 
 
 class NewsPostResponse(BaseModel):
@@ -26,6 +28,12 @@ class NewsGetResponse(BaseModel):
 class NewsLikeResponse(BaseModel):
     total_likes: int | None
 
+class LikeRequest(BaseModel):
+    email: str
+
+def encode_email(email: str) -> str:
+    """Encodes the email to be safely stored in database."""
+    return jwt.encode({"email": email}, SECRET_KEY, algorithm=ALGORITHM)
 
 def setup():
     router = APIRouter(prefix="/news", tags=["news"])
@@ -50,7 +58,7 @@ def setup():
         """
         news_dict = news.__dict__
         news_dict["user_email"] = user_email
-        await create_news(
+        await orm_news.create_news(
             session=request.app.db_session_factory, news=news_dict
         )
         return NewsPostResponse()
@@ -75,7 +83,7 @@ def setup():
         """
         Get News endpoint that retrieves news filtered by user and query params.
         """
-        news_list = await get_news_by_query_params(
+        news_list = await orm_news.get_news_by_query_params(
             session=request.app.db_session_factory,
             id=id,
             email=user_email,
@@ -86,7 +94,7 @@ def setup():
 
     @router.post(
         path="/{news_id}/like",
-        response_model=NewsPostResponse,
+        response_model=NewsLikeResponse,
         status_code=status.HTTP_200_OK,
         summary="News like endpoint",
         description="Allows user to like a news item",
@@ -96,16 +104,45 @@ def setup():
         current_community: Annotated[
             DBCommunity, Depends(get_current_active_community)
         ],
-        news_id,
+        news_id: str,
+        body: LikeRequest,
         user_email: str = Header(..., alias="user-email"),
     ):
         """
         News endpoint where user can set like to news item.
         """
-        total_likes = await like_news(
+        encoded_email = encode_email(body.email)
+        total_likes = await orm_news.like_news(
             session=request.app.db_session_factory,
             news_id=news_id,
-            user_email=user_email,
+            email=encoded_email,
+        )
+        return NewsLikeResponse(total_likes=total_likes)
+
+    @router.delete(
+        path="/{news_id}/like",
+        response_model=NewsLikeResponse,
+        status_code=status.HTTP_200_OK,
+        summary="News undo like endpoint",
+        description="Allows user to undo a like to a news item",
+    )
+    async def delete_like(
+        request: Request,
+        current_community: Annotated[
+            DBCommunity, Depends(get_current_active_community)
+        ],
+        news_id: str,
+        email: str,
+        user_email: str = Header(..., alias="user-email"),
+    ):
+        """
+        News endpoint where user can set like to news item.
+        """
+        encoded_email = encode_email(email)
+        total_likes = await orm_news.delete_like(
+            session=request.app.db_session_factory,
+            news_id=news_id,
+            email=encoded_email,
         )
         return NewsLikeResponse(total_likes=total_likes)
 
