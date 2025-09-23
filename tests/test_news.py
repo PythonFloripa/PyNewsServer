@@ -8,6 +8,7 @@ from httpx import AsyncClient
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from app.routers.news.routes import encode_email
 from app.services.database.models import Community, News
 
 
@@ -284,3 +285,84 @@ async def test_news_integration(
         == news_data["social_media_url"]
     )
     assert data["news_list"][0]["likes"] == 0
+
+
+@pytest.mark.asyncio
+async def test_news_likes_endpoint(
+    session: AsyncSession,
+    async_client: AsyncClient,
+    community: Community,
+    valid_auth_headers: Mapping[str, str],
+):
+    news_data = {
+        "title": "Test News",
+        "content": "Test news content.",
+        "category": "test_category",
+        "tags": "test_tag",
+        "source_url": "https://example.com/test-news",
+        "social_media_url": "https://test.com/test_news",
+    }
+    response = await async_client.post(
+        "/api/news", json=news_data, headers=valid_auth_headers
+    )
+    assert response.status_code == status.HTTP_200_OK
+    statement = select(News).where(News.title == news_data["title"])
+    result = await session.exec(statement)
+    stored_news = result.first()
+    assert stored_news is not None
+    assert stored_news.likes == 0
+
+    emails = ["like@test.com", "like2@test.com"]
+
+    # Add likes
+    response = await async_client.post(
+        f"/api/news/{stored_news.id}/like",
+        json={"email": emails[0]},
+        headers=valid_auth_headers,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    statement = select(News).where(News.title == news_data["title"])
+    result = await session.exec(statement)
+    stored_news = result.first()
+    assert stored_news.likes == 1
+    assert stored_news.user_email_list == f"['{encode_email(emails[0])}']"
+
+    response = await async_client.post(
+        f"/api/news/{stored_news.id}/like",
+        json={"email": emails[1]},
+        headers=valid_auth_headers,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    statement = select(News).where(News.title == news_data["title"])
+    result = await session.exec(statement)
+    stored_news = result.first()
+    assert stored_news.likes == 2
+    assert (
+        stored_news.user_email_list
+        == f"['{encode_email(emails[0])}', '{encode_email(emails[1])}']"
+    )
+
+    # Remove likes
+    response = await async_client.delete(
+        f"/api/news/{stored_news.id}/like",
+        params={"email": emails[0]},
+        headers=valid_auth_headers,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    statement = select(News).where(News.title == news_data["title"])
+    result = await session.exec(statement)
+    stored_news = result.first()
+    assert stored_news.likes == 1
+    assert stored_news.user_email_list == f"['{encode_email(emails[1])}']"
+
+    response = await async_client.delete(
+        f"/api/news/{stored_news.id}/like",
+        params={"email": emails[1]},
+        headers=valid_auth_headers,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    statement = select(News).where(News.title == news_data["title"])
+    result = await session.exec(statement)
+    stored_news = result.first()
+    assert stored_news.likes == 0
+    assert stored_news.user_email_list == "[]"
