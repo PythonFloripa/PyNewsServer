@@ -1,6 +1,8 @@
 from fastapi import APIRouter, status
 from pydantic import BaseModel
 
+from app.services.limiter import limiter
+
 
 class HealthCheckResponse(BaseModel):
     status: str = "healthy"
@@ -17,6 +19,7 @@ def setup():
         summary="Health check endpoint",
         description="Returns the health status of the API",
     )
+    @limiter.limit("60/minute")
     async def healthcheck():
         """
         Health check endpoint that returns the current status of the API.
