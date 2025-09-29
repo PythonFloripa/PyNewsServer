@@ -1,7 +1,7 @@
 from datetime import date
+from typing import Mapping
 
 import pytest
-import pytest_asyncio
 from httpx import AsyncClient
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -9,15 +9,6 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from app.enums import LibraryTagUpdatesEnum
 from app.schemas import LibraryNews
 from app.services.database.models import Community, Library
-
-
-@pytest_asyncio.fixture
-async def community(session: AsyncSession):
-    community = Community(username="admin", email="a@a.com", password="123")
-    session.add(community)
-    await session.commit()
-    await session.refresh(community)
-    return community
 
 
 @pytest.mark.asyncio
@@ -60,7 +51,9 @@ async def test_insert_libraries(session: AsyncSession, community: Community):
 
 @pytest.mark.asyncio
 async def test_post_libraries_endpoint(
-    async_client: AsyncClient, session: AsyncSession
+    session: AsyncSession,
+    async_client: AsyncClient,
+    valid_auth_headers: Mapping[str, str],
 ):
     body = {
         "library_name": "FastAPI",
@@ -79,7 +72,7 @@ async def test_post_libraries_endpoint(
     response = await async_client.post(
         "/api/libraries",
         json=body,
-        headers={"Content-Type": "application/json"},
+        headers=valid_auth_headers,
     )
 
     assert response.status_code == 200
@@ -104,7 +97,10 @@ async def test_post_libraries_endpoint(
 
 
 @pytest.mark.asyncio
-async def test_get_libraries_by_language(async_client: AsyncClient):
+async def test_get_libraries_by_language(
+    async_client: AsyncClient,
+    valid_auth_headers: Mapping[str, str],
+):
     body = {
         "library_name": "FastAPI",
         "news": [
@@ -122,7 +118,7 @@ async def test_get_libraries_by_language(async_client: AsyncClient):
     responsePOST = await async_client.post(
         "/api/libraries",
         json=body,
-        headers={"Content-Type": "application/json"},
+        headers=valid_auth_headers,
     )
 
     assert responsePOST.status_code == 200
@@ -131,6 +127,7 @@ async def test_get_libraries_by_language(async_client: AsyncClient):
     response = await async_client.get(
         "/api/libraries",
         params={"language": "Python"},
+        headers=valid_auth_headers,
     )
 
     assert response.status_code == 200
@@ -153,7 +150,10 @@ async def test_get_libraries_by_language(async_client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_get_libraries_by_inexistent_language(async_client: AsyncClient):
+async def test_get_libraries_by_inexistent_language(
+    async_client: AsyncClient,
+    valid_auth_headers: Mapping[str, str],
+):
     body = {
         "library_name": "FastAPI",
         "news": [
@@ -171,7 +171,7 @@ async def test_get_libraries_by_inexistent_language(async_client: AsyncClient):
     responsePOST = await async_client.post(
         "/api/libraries",
         json=body,
-        headers={"Content-Type": "application/json"},
+        headers=valid_auth_headers,
     )
 
     assert responsePOST.status_code == 200
@@ -180,6 +180,7 @@ async def test_get_libraries_by_inexistent_language(async_client: AsyncClient):
     response = await async_client.get(
         "/api/libraries",
         params={"language": "NodeJS"},
+        headers=valid_auth_headers,
     )
 
     assert response.status_code == 200
