@@ -3,14 +3,14 @@ from typing import Annotated, List
 from fastapi import APIRouter, Header, HTTPException, Request, status
 from fastapi.params import Depends
 from pydantic import BaseModel
-from routers.authentication import get_current_active_community
-from services.database.models.communities import Community as DBCommunity
 
+from app.routers.authentication import get_current_active_community
 from app.schemas import Library as LibrarySchema
 from app.schemas import LibraryNews
 from app.schemas import LibraryRequest as LibraryRequestSchema
 from app.schemas import Subscription as SubscriptionSchema
 from app.services.database.models import Library, Subscription
+from app.services.database.models.communities import Community as DBCommunity
 from app.services.database.models.libraries_request import LibraryRequest
 from app.services.database.orm.library import (
     get_libraries_by_language,
