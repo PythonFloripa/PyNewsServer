@@ -1,7 +1,8 @@
 import pytest
-from services.database.models import Community
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+from app.services.database.models import Community
 
 
 @pytest.mark.asyncio

@@ -10,8 +10,47 @@ from app.schemas import Community, Token, TokenPayload
 from app.services import auth
 from app.services.database.models import Community as DBCommunity
 from app.services.database.orm.community import get_community_by_username
+from app.services.limiter import limiter
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/authentication/token")
+
+
+async def get_current_community(
+    request: Request,
+    token: Annotated[str, Depends(oauth2_scheme)],
+) -> DBCommunity:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    try:
+        payload = jwt.decode(
+            token, auth.SECRET_KEY, algorithms=[auth.ALGORITHM]
+        )
+        username = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+        token_data = TokenPayload(username=username)
+    except InvalidTokenError:
+        raise credentials_exception
+    session: AsyncSession = request.app.db_session_factory
+    community = await get_community_by_username(
+        session=session, username=token_data.username
+    )
+    if community is None:
+        raise credentials_exception
+
+    return community
+
+
+async def get_current_active_community(
+    current_user: Annotated[DBCommunity, Depends(get_current_community)],
+) -> DBCommunity:
+    # A função simplesmente retorna o usuário.
+    # Pode ser estendido futuramente para verificar um status "ativo".
+    return current_user
 
 
 def setup():
@@ -30,43 +69,6 @@ def setup():
         ):
             return None
         return found_community
-
-    # Teste
-    async def get_current_community(
-        request: Request,
-        token: Annotated[str, Depends(oauth2_scheme)],
-    ) -> DBCommunity:
-        credentials_exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-        try:
-            payload = jwt.decode(
-                token, auth.SECRET_KEY, algorithms=[auth.ALGORITHM]
-            )
-            username = payload.get("sub")
-            if username is None:
-                raise credentials_exception
-            token_data = TokenPayload(username=username)
-        except InvalidTokenError:
-            raise credentials_exception
-        session: AsyncSession = request.app.db_session_factory
-        community = await get_community_by_username(
-            session=session, username=token_data.username
-        )
-        if community is None:
-            raise credentials_exception
-
-        return community
-
-    async def get_current_active_community(
-        current_user: Annotated[DBCommunity, Depends(get_current_community)],
-    ) -> DBCommunity:
-        # A função simplesmente retorna o usuário.
-        # Pode ser estendido futuramente para verificar um status "ativo".
-        return current_user
 
     # Teste
 
@@ -88,6 +90,7 @@ def setup():
     # Teste
 
     @router.post("/token", response_model=Token)
+    @limiter.limit("60/minute")
     async def login_for_access_token(
         request: Request, form_data: OAuth2PasswordRequestForm = Depends()
     ):
@@ -109,7 +112,9 @@ def setup():
         }
 
     @router.get("/me", response_model=Community)
+    @limiter.limit("60/minute")
     async def read_community_me(
+        request: Request,
         current_community: Annotated[
             DBCommunity, Depends(get_current_active_community)
         ],

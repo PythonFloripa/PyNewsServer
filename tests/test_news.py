@@ -5,40 +5,54 @@ import pytest
 import pytest_asyncio
 from fastapi import status
 from httpx import AsyncClient
-from services.database.models import Community, News
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-
-@pytest_asyncio.fixture
-async def community(session: AsyncSession) -> Community:
-    community = Community(username="admin", email="a@a.com", password="123")
-    session.add(community)
-    await session.commit()
-    await session.refresh(community)
-    return community
+from app.routers.news.routes import encode_email
+from app.services.database.models import Community, News
 
 
 @pytest_asyncio.fixture
 async def news_list(community: Community) -> list[News]:
     news_list = [
         News(
-            title="Python 3.12 Lançado!",
+            title="Test news",
             content="A nova versão do Python traz melhorias ...",
             category="release",
-            user_email="dev@example.com",
+            user_email=community.email,
             source_url="https://python.org/news",
-            tags="python, release, programming",
+            tags="programming",
             social_media_url="https://linkedin.com/pythonista",
-            community_id=community.id,  # Usando o ID da comunidade do fixture
+            community_id=community.id,
         ),
         News(
-            title="FastAPI 0.100 Lançado!",
+            title="Test category",
+            content="A nova versão do Python traz melhorias ...",
+            category="test_category",
+            user_email=community.email,
+            source_url="https://python.org/news",
+            tags="programming",
+            social_media_url="https://linkedin.com/pythonista",
+            community_id=community.id,
+        ),
+        News(
+            title="Test user email",
             content="FastAPI agora suporta novas funcionalidades ...",
             category="release",
-            user_email="example@pynews.com",
+            user_email="test_user_email@test.com",
             source_url="https://fastapi.com/news",
-            tags="fastapi, release, web",
+            tags="programming",
+            social_media_url="https://twitter.com/fastapi",
+            likes=100,
+            community_id=community.id,
+        ),
+        News(
+            title="Test id",
+            content="FastAPI agora suporta novas funcionalidades ...",
+            category="release",
+            user_email=community.email,
+            source_url="https://fastapi.com/news",
+            tags="programming",
             social_media_url="https://twitter.com/fastapi",
             likes=100,
         ),
@@ -55,19 +69,17 @@ async def test_insert_news(
     """
     session.add(news_list[0])
     await session.commit()
-
-    statement = select(News).where(News.title == "Python 3.12 Lançado!")
+    statement = select(News).where(News.title == "Test news")
     result = await session.exec(statement)
     found_news = result.first()
-
     assert found_news is not None
-    assert found_news.title == "Python 3.12 Lançado!"
-    assert found_news.content == "A nova versão do Python traz melhorias ..."
-    assert found_news.category == "release"
-    assert found_news.user_email == "dev@example.com"
-    assert found_news.source_url == "https://python.org/news"
-    assert found_news.tags == "python, release, programming"
-    assert found_news.social_media_url == "https://linkedin.com/pythonista"
+    assert found_news.title == news_list[0].title
+    assert found_news.content == news_list[0].content
+    assert found_news.category == news_list[0].category
+    assert found_news.user_email == news_list[0].user_email
+    assert found_news.source_url == news_list[0].source_url
+    assert found_news.tags == news_list[0].tags
+    assert found_news.social_media_url == news_list[0].social_media_url
     assert found_news.likes == 0
     assert found_news.community_id == community.id
     assert isinstance(found_news.created_at, datetime)
@@ -78,118 +90,156 @@ async def test_insert_news(
 
 @pytest.mark.asyncio
 async def test_post_news_endpoint(
-    async_client: AsyncClient, mock_headers: Mapping[str, str]
+    async_client: AsyncClient, valid_auth_headers: Mapping[str, str]
 ):
     """Test the news endpoint returns correct status."""
-    response = await async_client.post("/api/news", headers=mock_headers)
-
+    news_data = {
+        "title": "Test News",
+        "content": "Test news content.",
+        "category": "test_category",
+        "source_url": "https://example.com/test-news",
+    }
+    response = await async_client.post(
+        "/api/news", headers=valid_auth_headers, json=news_data
+    )
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {"status": "News Criada"}
+
+
+@pytest.mark.asyncio
+async def test_insert_news_via_post_news_endpoint(
+    session: AsyncSession,
+    async_client: AsyncClient,
+    community: Community,
+    valid_auth_headers: Mapping[str, str],
+):
+    news_data = {
+        "title": "Test News",
+        "content": "Test news content.",
+        "category": "test_category",
+        "tags": "test_tag",
+        "source_url": "https://example.com/test-news",
+        "social_media_url": "https://test.com/test_news",
+    }
+    response = await async_client.post(
+        "/api/news", json=news_data, headers=valid_auth_headers
+    )
+    assert response.status_code == status.HTTP_200_OK
+    statement = select(News).where(News.title == news_data["title"])
+    result = await session.exec(statement)
+    stored_news = result.first()
+    assert stored_news is not None
+    assert stored_news.title == news_data["title"]
+    assert stored_news.content == news_data["content"]
+    assert stored_news.category == news_data["category"]
+    assert stored_news.user_email == community.email
+    assert stored_news.source_url == news_data["source_url"]
+    assert stored_news.tags == news_data["tags"]
+    assert stored_news.social_media_url == news_data["social_media_url"]
+    assert stored_news.likes == 0
+    assert isinstance(stored_news.created_at, datetime)
+    assert isinstance(stored_news.updated_at, datetime)
+    assert stored_news.created_at <= datetime.now()
+    assert stored_news.updated_at >= stored_news.created_at
 
 
 @pytest.mark.asyncio
 async def test_get_news_endpoint(
     session: AsyncSession,
     async_client: AsyncClient,
-    mock_headers: Mapping[str, str],
+    valid_auth_headers: Mapping[str, str],
     news_list: list,
 ):
-    session.add(news_list[0])
-    session.add(news_list[1])
+    session.add_all(news_list)
     await session.commit()
-
-    """Test the news endpoint returns correct status and version."""
     response = await async_client.get(
         "/api/news",
-        headers=mock_headers,
+        headers=valid_auth_headers,
     )
-
     assert response.status_code == status.HTTP_200_OK
     assert "news_list" in response.json()
-    assert len(response.json()["news_list"]) == 2
+    assert len(response.json()["news_list"]) == 3
 
 
 @pytest.mark.asyncio
 async def test_get_news_by_category(
     session: AsyncSession,
     async_client: AsyncClient,
-    mock_headers: Mapping[str, str],
+    valid_auth_headers: Mapping[str, str],
     news_list: list,
 ):
-    # Add news to DB
     session.add_all(news_list)
     await session.commit()
-
-    # Filter by category
     response = await async_client.get(
         "/api/news",
         params={"category": "release"},
-        headers={"Content-Type": "application/json"},
+        headers=valid_auth_headers,
     )
     data = response.json()
     assert response.status_code == status.HTTP_200_OK
     assert "news_list" in data
     assert len(data["news_list"]) == 2
     titles = [news["title"] for news in data["news_list"]]
-    assert "Python 3.12 Lançado!" in titles
-    assert "FastAPI 0.100 Lançado!" in titles
+    assert "Test news" in titles
+    assert "Test id" in titles
 
 
 @pytest.mark.asyncio
 async def test_get_news_by_user_email(
-    session: AsyncSession, async_client: AsyncClient, news_list: list
+    session: AsyncSession,
+    async_client: AsyncClient,
+    news_list: list,
+    valid_auth_headers: Mapping[str, str],
 ):
     session.add_all(news_list)
     await session.commit()
-
     response = await async_client.get(
         "/api/news",
         params={},
-        headers={
-            "Content-Type": "application/json",
-            "user-email": "dev@example.com",
-        },
+        headers=valid_auth_headers,
     )
     data = response.json()
     assert response.status_code == status.HTTP_200_OK
-    assert len(data["news_list"]) == 1
-    assert data["news_list"][0]["user_email"] == "dev@example.com"
-    assert data["news_list"][0]["title"] == "Python 3.12 Lançado!"
+    assert len(data["news_list"]) == 3
+    titles = [news["title"] for news in data["news_list"]]
+    assert "Test news" in titles
+    assert "Test category" in titles
+    assert "Test id" in titles
 
 
 @pytest.mark.asyncio
 async def test_get_news_by_id(
     session: AsyncSession,
     async_client: AsyncClient,
-    mock_headers: Mapping[str, str],
+    valid_auth_headers: Mapping[str, str],
     news_list: list,
 ):
     session.add_all(news_list)
     await session.commit()
-    # Get the id from DB
-    statement = select(News).where(News.title == "Python 3.12 Lançado!")
+
+    statement = select(News).where(News.title == "Test news")
     result = await session.exec(statement)
-    news = result.first()
+    stored_news = result.first()
+
     response = await async_client.get(
         "/api/news",
-        params={"id": news.id},
-        headers=mock_headers,
+        params={"id": stored_news.id},
+        headers=valid_auth_headers,
     )
     data = response.json()
     assert response.status_code == status.HTTP_200_OK
     assert len(data["news_list"]) == 1
-    assert data["news_list"][0]["id"] == news.id
-    assert data["news_list"][0]["title"] == "Python 3.12 Lançado!"
+    assert data["news_list"][0]["id"] == stored_news.id
 
 
 @pytest.mark.asyncio
 async def test_get_news_empty_result(
-    async_client: AsyncClient, mock_headers: Mapping[str, str]
+    async_client: AsyncClient, valid_auth_headers: Mapping[str, str]
 ):
     response = await async_client.get(
         "/api/news",
         params={"category": "notfound"},
-        headers=mock_headers,
+        headers=valid_auth_headers,
     )
     data = response.json()
     assert response.status_code == status.HTTP_200_OK
@@ -197,4 +247,122 @@ async def test_get_news_empty_result(
     assert data["news_list"] == []
 
 
-# ADD like test case for News model
+@pytest.mark.asyncio
+async def test_news_integration(
+    session: AsyncSession,
+    async_client: AsyncClient,
+    community: Community,
+    valid_auth_headers: Mapping[str, str],
+):
+    news_data = {
+        "title": "Test News",
+        "content": "Test news content.",
+        "category": "test_category",
+        "tags": "test_tag",
+        "source_url": "https://example.com/test-news",
+        "social_media_url": "https://test.com/test_news",
+    }
+    post_response = await async_client.post(
+        "/api/news", json=news_data, headers=valid_auth_headers
+    )
+    assert post_response.status_code == status.HTTP_200_OK
+    get_response = await async_client.get(
+        "/api/news",
+        headers=valid_auth_headers,
+    )
+    data = get_response.json()
+    assert get_response.status_code == status.HTTP_200_OK
+    assert "news_list" in data
+    assert len(data["news_list"]) == 1
+    assert data["news_list"][0]["title"] == news_data["title"]
+    assert data["news_list"][0]["content"] == news_data["content"]
+    assert data["news_list"][0]["category"] == news_data["category"]
+    assert data["news_list"][0]["user_email"] == community.email
+    assert data["news_list"][0]["source_url"] == news_data["source_url"]
+    assert data["news_list"][0]["tags"] == news_data["tags"]
+    assert (
+        data["news_list"][0]["social_media_url"]
+        == news_data["social_media_url"]
+    )
+    assert data["news_list"][0]["likes"] == 0
+
+
+@pytest.mark.asyncio
+async def test_news_likes_endpoint(
+    session: AsyncSession,
+    async_client: AsyncClient,
+    community: Community,
+    valid_auth_headers: Mapping[str, str],
+):
+    news_data = {
+        "title": "Test News",
+        "content": "Test news content.",
+        "category": "test_category",
+        "tags": "test_tag",
+        "source_url": "https://example.com/test-news",
+        "social_media_url": "https://test.com/test_news",
+    }
+    response = await async_client.post(
+        "/api/news", json=news_data, headers=valid_auth_headers
+    )
+    assert response.status_code == status.HTTP_200_OK
+    statement = select(News).where(News.title == news_data["title"])
+    result = await session.exec(statement)
+    stored_news = result.first()
+    assert stored_news is not None
+    assert stored_news.likes == 0
+
+    emails = ["like@test.com", "like2@test.com"]
+
+    # Add likes
+    response = await async_client.post(
+        f"/api/news/{stored_news.id}/like",
+        json={"email": emails[0]},
+        headers=valid_auth_headers,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    statement = select(News).where(News.title == news_data["title"])
+    result = await session.exec(statement)
+    stored_news = result.first()
+    assert stored_news.likes == 1
+    assert stored_news.user_email_list == f"['{encode_email(emails[0])}']"
+
+    response = await async_client.post(
+        f"/api/news/{stored_news.id}/like",
+        json={"email": emails[1]},
+        headers=valid_auth_headers,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    statement = select(News).where(News.title == news_data["title"])
+    result = await session.exec(statement)
+    stored_news = result.first()
+    assert stored_news.likes == 2
+    assert (
+        stored_news.user_email_list
+        == f"['{encode_email(emails[0])}', '{encode_email(emails[1])}']"
+    )
+
+    # Remove likes
+    response = await async_client.delete(
+        f"/api/news/{stored_news.id}/like",
+        params={"email": emails[0]},
+        headers=valid_auth_headers,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    statement = select(News).where(News.title == news_data["title"])
+    result = await session.exec(statement)
+    stored_news = result.first()
+    assert stored_news.likes == 1
+    assert stored_news.user_email_list == f"['{encode_email(emails[1])}']"
+
+    response = await async_client.delete(
+        f"/api/news/{stored_news.id}/like",
+        params={"email": emails[1]},
+        headers=valid_auth_headers,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    statement = select(News).where(News.title == news_data["title"])
+    result = await session.exec(statement)
+    stored_news = result.first()
+    assert stored_news.likes == 0
+    assert stored_news.user_email_list == "[]"

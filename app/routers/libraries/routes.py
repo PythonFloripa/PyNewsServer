@@ -1,13 +1,20 @@
-from fastapi import APIRouter, HTTPException, Request, status
+from typing import Annotated, List
+
+from fastapi import APIRouter, Header, HTTPException, Request, status
 from pydantic import BaseModel
 
 from app.schemas import Library as LibrarySchema
+from app.schemas import LibraryNews
+from app.schemas import LibraryRequest as LibraryRequestSchema
 from app.schemas import Subscription as SubscriptionSchema
 from app.services.database.models import Library, Subscription
+from app.services.database.models.libraries_request import LibraryRequest
 from app.services.database.orm.library import (
+    get_libraries_by_language,
     get_library_ids_by_multiple_names,
     insert_library,
 )
+from app.services.database.orm.library_request import insert_library_request
 from app.services.database.orm.subscription import upsert_multiple_subscription
 
 
@@ -22,6 +29,41 @@ class SubscribeLibraryResponse(BaseModel):
 def setup():
     router = APIRouter(prefix="/libraries", tags=["libraries"])
 
+    @router.get(
+        "",
+        response_model=List[LibrarySchema],
+        status_code=status.HTTP_200_OK,
+        summary="Get libraries by language",
+        description="Get libraries by language",
+    )
+    async def get_by_language(request: Request, language: str):
+        try:
+            libraryList = await get_libraries_by_language(
+                language=language, session=request.app.db_session_factory
+            )
+            return [
+                LibrarySchema(
+                    library_name=libraryDb.library_name,
+                    news=[
+                        LibraryNews(
+                            tag=news["tag"], description=news["description"]
+                        )
+                        for news in libraryDb.news
+                    ],
+                    logo=libraryDb.logo,
+                    version=libraryDb.version,
+                    release_date=libraryDb.release_date,
+                    releases_doc_url=libraryDb.releases_doc_url,
+                    fixed_release_url=libraryDb.fixed_release_url,
+                    language=libraryDb.language,
+                )
+                for libraryDb in libraryList
+            ]
+        except HTTPException as e:
+            raise e
+        except Exception as e:
+            HTTPException(status_code=500, detail=f"Unexpected error: {e}")
+
     @router.post(
         "",
         response_model=LibraryResponse,
@@ -35,16 +77,22 @@ def setup():
     ):
         library = Library(
             library_name=body.library_name,
-            user_email="",  # TODO: Considerar obter o email do usuário autenticado
-            releases_url=body.releases_url.encoded_string(),
-            logo=body.logo.encoded_string(),
+            news=[news.model_dump() for news in body.news],
+            logo=body.logo,
+            version=body.version,
+            release_date=body.release_date,
+            releases_doc_url=body.releases_doc_url,
+            fixed_release_url=body.fixed_release_url,
+            language=body.language,
         )
         try:
             await insert_library(library, request.app.db_session_factory)
             return LibraryResponse()
+        except HTTPException as e:
+            raise e
         except Exception as e:
             raise HTTPException(
-                status_code=500, detail=f"Failed to create library: {e}"
+                status_code=500, detail=f"Unexpected error: {e}"
             )
 
     @router.post(
@@ -59,14 +107,22 @@ def setup():
     async def subscribe_libraries(
         request: Request,
         body: SubscriptionSchema,
+        user_email: Annotated[str, Header(alias="user-email")],
     ):
         try:
             library_ids = await get_library_ids_by_multiple_names(
                 body.libraries_list, request.app.db_session_factory
             )
 
+            if (library_ids is None) or (len(library_ids) == 0):
+                raise HTTPException(
+                    status_code=404, detail="Libraries not found"
+                )
+
             subscriptions = [
-                Subscription(email=body.email, tags=body.tags, library_id=id)
+                Subscription(
+                    user_email=user_email, tags=body.tags, library_id=id
+                )
                 for id in library_ids
             ]
 
@@ -75,9 +131,42 @@ def setup():
             )
 
             return SubscribeLibraryResponse()
+        except HTTPException as e:
+            raise e
         except Exception as e:
             raise HTTPException(
-                status_code=500, detail=f"Subscription failed: {e}"
+                status_code=500, detail=f"Unexpected error: {e}"
+            )
+
+    @router.post(
+        "/request",
+        response_model=LibraryResponse,
+        status_code=status.HTTP_200_OK,
+        summary="Request a library",
+        description="Request a library to follow",
+    )
+    async def request_library(
+        request: Request,
+        body: LibraryRequestSchema,
+        user_email: Annotated[str, Header(alias="user-email")],
+    ):
+        try:
+            library_request = LibraryRequest(
+                user_email=user_email,
+                library_name=body.library_name,
+                library_home_page=body.library_home_page,
+            )
+
+            await insert_library_request(
+                library_request, request.app.db_session_factory
+            )
+
+            return LibraryResponse()
+        except HTTPException as e:
+            raise e
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Unexpected error: {e}"
             )
 
     return router
