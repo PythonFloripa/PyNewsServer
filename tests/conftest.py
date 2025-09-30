@@ -96,7 +96,7 @@ async def community(session: AsyncSession):
 
 
 @pytest_asyncio.fixture()
-async def token(async_client: AsyncGenerator[AsyncClient, None]) -> str:
+async def token(async_client: AsyncClient) -> str:
     form_data = {
         "grant_type": "password",
         "username": CommunityCredentials.username,

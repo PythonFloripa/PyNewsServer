@@ -10,6 +10,7 @@ import app.services.database.orm.news as orm_news
 from app.routers.authentication import get_current_active_community
 from app.schemas import News
 from app.services.database.models import Community as DBCommunity
+from app.services.limiter import limiter
 
 SECRET_KEY = os.getenv("SECRET_KEY", "default_fallback_key")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
@@ -43,6 +44,7 @@ def setup():
         summary="News endpoint",
         description="Creates news and returns a confirmation message",
     )
+    @limiter.limit("60/minute")
     async def post_news(
         request: Request,
         current_community: Annotated[
@@ -68,6 +70,7 @@ def setup():
         summary="Get News",
         description="Retrieves news filtered by user and query params",
     )
+    @limiter.limit("60/minute")
     async def get_news(
         request: Request,
         current_community: Annotated[
@@ -97,6 +100,7 @@ def setup():
         summary="News like endpoint",
         description="Allows user to like a news item",
     )
+    @limiter.limit("60/minute")
     async def post_like(
         request: Request,
         current_community: Annotated[
@@ -123,6 +127,7 @@ def setup():
         summary="News undo like endpoint",
         description="Allows user to undo a like to a news item",
     )
+    @limiter.limit("60/minute")
     async def delete_like(
         request: Request,
         current_community: Annotated[

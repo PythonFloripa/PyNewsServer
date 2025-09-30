@@ -1,13 +1,16 @@
 from typing import Annotated, List
 
 from fastapi import APIRouter, Header, HTTPException, Request, status
+from fastapi.params import Depends
 from pydantic import BaseModel
 
+from app.routers.authentication import get_current_active_community
 from app.schemas import Library as LibrarySchema
 from app.schemas import LibraryNews
 from app.schemas import LibraryRequest as LibraryRequestSchema
 from app.schemas import Subscription as SubscriptionSchema
 from app.services.database.models import Library, Subscription
+from app.services.database.models.communities import Community as DBCommunity
 from app.services.database.models.libraries_request import LibraryRequest
 from app.services.database.orm.library import (
     get_libraries_by_language,
@@ -16,6 +19,7 @@ from app.services.database.orm.library import (
 )
 from app.services.database.orm.library_request import insert_library_request
 from app.services.database.orm.subscription import upsert_multiple_subscription
+from app.services.limiter import limiter
 
 
 class LibraryResponse(BaseModel):
@@ -36,7 +40,14 @@ def setup():
         summary="Get libraries by language",
         description="Get libraries by language",
     )
-    async def get_by_language(request: Request, language: str):
+    @limiter.limit("60/minute")
+    async def get_by_language(
+        request: Request,
+        language: str,
+        current_community: Annotated[
+            DBCommunity, Depends(get_current_active_community)
+        ],
+    ):
         try:
             libraryList = await get_libraries_by_language(
                 language=language, session=request.app.db_session_factory
@@ -71,9 +82,13 @@ def setup():
         summary="Create a library",
         description="Create a new library to follow",
     )
+    @limiter.limit("60/minute")
     async def create_library(
         request: Request,
         body: LibrarySchema,
+        current_community: Annotated[
+            DBCommunity, Depends(get_current_active_community)
+        ],
     ):
         library = Library(
             library_name=body.library_name,
@@ -84,6 +99,7 @@ def setup():
             releases_doc_url=body.releases_doc_url,
             fixed_release_url=body.fixed_release_url,
             language=body.language,
+            community_id=current_community.id,
         )
         try:
             await insert_library(library, request.app.db_session_factory)
@@ -104,10 +120,14 @@ def setup():
             "Subscribe to multiple libs and tags to receive libs updates"
         ),
     )
+    @limiter.limit("60/minute")
     async def subscribe_libraries(
         request: Request,
         body: SubscriptionSchema,
         user_email: Annotated[str, Header(alias="user-email")],
+        current_community: Annotated[
+            DBCommunity, Depends(get_current_active_community)
+        ],
     ):
         try:
             library_ids = await get_library_ids_by_multiple_names(
@@ -121,7 +141,10 @@ def setup():
 
             subscriptions = [
                 Subscription(
-                    user_email=user_email, tags=body.tags, library_id=id
+                    user_email=user_email,
+                    tags=body.tags,
+                    library_id=id,
+                    community_id=current_community.id,
                 )
                 for id in library_ids
             ]
@@ -145,16 +168,21 @@ def setup():
         summary="Request a library",
         description="Request a library to follow",
     )
+    @limiter.limit("60/minute")
     async def request_library(
         request: Request,
         body: LibraryRequestSchema,
         user_email: Annotated[str, Header(alias="user-email")],
+        current_community: Annotated[
+            DBCommunity, Depends(get_current_active_community)
+        ],
     ):
         try:
             library_request = LibraryRequest(
                 user_email=user_email,
                 library_name=body.library_name,
                 library_home_page=body.library_home_page,
+                community_id=current_community.id,
             )
 
             await insert_library_request(

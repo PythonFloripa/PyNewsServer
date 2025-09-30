@@ -1,20 +1,12 @@
+from typing import Mapping
+
 import pytest
-import pytest_asyncio
 from httpx import AsyncClient
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.enums import LibraryTagUpdatesEnum
 from app.services.database.models import Community, Subscription
-
-
-@pytest_asyncio.fixture
-async def community(session: AsyncSession):
-    community = Community(username="admin", email="a@a.com", password="123")
-    session.add(community)
-    await session.commit()
-    await session.refresh(community)
-    return community
 
 
 @pytest.mark.asyncio
@@ -45,7 +37,10 @@ async def test_insert_subscription(session: AsyncSession, community: Community):
     assert found.community_id == community.id
 
 
-async def preset_libraries_with_http_post(async_client: AsyncClient):
+async def preset_libraries_with_http_post(
+    async_client: AsyncClient,
+    valid_auth_headers: Mapping[str, str],
+):
     body1 = {
         "library_name": "Flask",
         "news": [
@@ -63,7 +58,7 @@ async def preset_libraries_with_http_post(async_client: AsyncClient):
     response1 = await async_client.post(
         "/api/libraries",
         json=body1,
-        headers={"Content-Type": "application/json"},
+        headers=valid_auth_headers,
     )
 
     assert response1.status_code == 200
@@ -85,7 +80,7 @@ async def preset_libraries_with_http_post(async_client: AsyncClient):
     response2 = await async_client.post(
         "/api/libraries",
         json=body2,
-        headers={"Content-Type": "application/json"},
+        headers=valid_auth_headers,
     )
 
     assert response2.status_code == 200
@@ -93,9 +88,14 @@ async def preset_libraries_with_http_post(async_client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_post_subscribe_endpoint(
-    async_client: AsyncClient, session: AsyncSession
+    async_client: AsyncClient,
+    session: AsyncSession,
+    community: Community,
+    valid_auth_headers: Mapping[str, str],
 ):
-    await preset_libraries_with_http_post(async_client=async_client)
+    await preset_libraries_with_http_post(
+        async_client=async_client, valid_auth_headers=valid_auth_headers
+    )
 
     body = {
         "tags": ["bug_fix", "updates"],
@@ -105,13 +105,15 @@ async def test_post_subscribe_endpoint(
     response = await async_client.post(
         "/api/libraries/subscribe",
         json=body,
-        headers={"Content-Type": "application/json", "user-email": "a@a.com"},
+        headers=valid_auth_headers,
     )
 
     assert response.status_code == 200
     assert response.json()["status"] == "Subscribed in libraries successfully"
 
-    statement = select(Subscription).where(Subscription.user_email == "a@a.com")
+    statement = select(Subscription).where(
+        Subscription.user_email == community.email
+    )
     result = await session.exec(statement)
     created_subscriptions = result.all()
 
@@ -130,8 +132,11 @@ async def test_post_subscribe_endpoint(
 @pytest.mark.asyncio
 async def test_post_subscribe_endpoint_with_unexistents_libraries(
     async_client: AsyncClient,
+    valid_auth_headers: Mapping[str, str],
 ):
-    await preset_libraries_with_http_post(async_client=async_client)
+    await preset_libraries_with_http_post(
+        async_client=async_client, valid_auth_headers=valid_auth_headers
+    )
 
     body = {
         "tags": ["bug_fix", "updates"],
@@ -141,7 +146,7 @@ async def test_post_subscribe_endpoint_with_unexistents_libraries(
     response = await async_client.post(
         "/api/libraries/subscribe",
         json=body,
-        headers={"Content-Type": "application/json", "user-email": "a@a.com"},
+        headers=valid_auth_headers,
     )
 
     assert response.status_code == 404

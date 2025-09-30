@@ -1,19 +1,11 @@
+from typing import Mapping
+
 import pytest
-import pytest_asyncio
 from httpx import AsyncClient
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.services.database.models import Community, LibraryRequest
-
-
-@pytest_asyncio.fixture
-async def community(session: AsyncSession):
-    community = Community(username="admin", email="a@a.com", password="123")
-    session.add(community)
-    await session.commit()
-    await session.refresh(community)
-    return community
 
 
 @pytest.mark.asyncio
@@ -41,14 +33,17 @@ async def test_insert_libraries(session: AsyncSession, community: Community):
 
 @pytest.mark.asyncio
 async def test_post_libraries_endpoint(
-    async_client: AsyncClient, session: AsyncSession
+    async_client: AsyncClient,
+    session: AsyncSession,
+    community: Community,
+    valid_auth_headers: Mapping[str, str],
 ):
     body = {"library_name": "FastAPI", "library_home_page": "http://teste.com/"}
 
     response = await async_client.post(
         "/api/libraries/request",
         json=body,
-        headers={"Content-Type": "application/json", "user-email": "a@a.com"},
+        headers=valid_auth_headers,
     )
 
     assert response.status_code == 200
@@ -61,5 +56,5 @@ async def test_post_libraries_endpoint(
     created_request = result.first()
 
     assert created_request is not None
-    assert created_request.user_email == "a@a.com"
+    assert created_request.user_email == community.email
     assert created_request.library_home_page == "http://teste.com/"
