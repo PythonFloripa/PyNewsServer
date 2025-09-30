@@ -28,10 +28,6 @@ class NewsLikeResponse(BaseModel):
     total_likes: int | None
 
 
-class LikeRequest(BaseModel):
-    email: str
-
-
 def encode_email(email: str) -> str:
     """Encodes the email to be safely stored in database."""
     return jwt.encode({"email": email}, SECRET_KEY, algorithm=ALGORITHM)
@@ -107,13 +103,12 @@ def setup():
             DBCommunity, Depends(get_current_active_community)
         ],
         news_id: str,
-        body: LikeRequest,
         user_email: str = Header(..., alias="user-email"),
     ):
         """
         News endpoint where user can set like to news item.
         """
-        encoded_email = encode_email(body.email)
+        encoded_email = encode_email(user_email)
         total_likes = await orm_news.like_news(
             session=request.app.db_session_factory,
             news_id=news_id,
@@ -134,13 +129,12 @@ def setup():
             DBCommunity, Depends(get_current_active_community)
         ],
         news_id: str,
-        email: str,
         user_email: str = Header(..., alias="user-email"),
     ):
         """
         News endpoint where user can set like to news item.
         """
-        encoded_email = encode_email(email)
+        encoded_email = encode_email(user_email)
         total_likes = await orm_news.delete_like(
             session=request.app.db_session_factory,
             news_id=news_id,
