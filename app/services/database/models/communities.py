@@ -11,6 +11,7 @@ class Community(SQLModel, table=True):
     username: str
     email: str
     password: str
+    role: str = Field(default="user")
     created_at: Optional[datetime] = Field(default_factory=datetime.now)
     updated_at: Optional[datetime] = Field(
         default_factory=datetime.now,

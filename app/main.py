@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from slowapi import _rate_limit_exceeded_handler
 
+from app.routers.admin.admin import create_community_admin
 from app.routers.router import setup_router as setup_router_v2
 from app.services.database.database import AsyncSessionLocal, init_db
 from app.services.limiter import limiter
@@ -16,6 +17,7 @@ async def lifespan(app: FastAPI):
     # add check db file and create if not found
     await init_db()
     app.db_session_factory = AsyncSessionLocal()
+    await create_community_admin(app.db_session_factory)
     try:
         yield
     finally:
