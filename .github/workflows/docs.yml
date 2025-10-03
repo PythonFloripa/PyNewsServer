@@ -19,7 +19,7 @@ jobs:
 
       - name: Install Python dependencies (mínimas para OpenAPI)
         run: |
-          pip install fastapi sqlmodel sqlalchemy aiosqlite
+          pip install -r requirements.txt
 
       - name: Export OpenAPI schema
         env:
