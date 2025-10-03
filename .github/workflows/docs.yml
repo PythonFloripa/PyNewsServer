@@ -1,0 +1,48 @@
+name: Deploy API Docs to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies (mínimas para OpenAPI)
+        run: |
+          pip install fastapi sqlmodel sqlalchemy aiosqlite
+
+      - name: Export OpenAPI schema
+        env:
+          SECRET_KEY: dummy
+          ALGORITHM: HS256
+          ACCESS_TOKEN_EXPIRE_MINUTES: 20
+          SQLITE_PATH: /tmp/pynewsdb.db
+          SQLITE_URL: sqlite+aiosqlite:////tmp/pynewsdb.db
+          PYTHONPATH: .
+        run: |
+          python scripts/export_openapi.py app.main:app openapi.json
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate static docs (Redoc)
+        run: |
+          npx --yes redoc-cli bundle openapi.json -o docs/index.html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
