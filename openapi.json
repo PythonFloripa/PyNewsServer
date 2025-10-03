@@ -1,0 +1,1092 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "pynews-server",
+    "description": "PyNews Server",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/healthcheck": {
+      "get": {
+        "tags": [
+          "healthcheck"
+        ],
+        "summary": "Health check endpoint",
+        "description": "Returns the health status of the API",
+        "operationId": "healthcheck_api_healthcheck_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthCheckResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/news": {
+      "post": {
+        "tags": [
+          "news"
+        ],
+        "summary": "News endpoint",
+        "description": "Creates news and returns a confirmation message",
+        "operationId": "post_news_api_news_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user-email",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User-Email"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/News"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NewsPostResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "news"
+        ],
+        "summary": "Get News",
+        "description": "Retrieves news filtered by user and query params",
+        "operationId": "get_news_api_news_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Id"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tags"
+            }
+          },
+          {
+            "name": "user-email",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User-Email"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NewsGetResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/news/{news_id}/like": {
+      "post": {
+        "tags": [
+          "news"
+        ],
+        "summary": "News like endpoint",
+        "description": "Allows user to like a news item",
+        "operationId": "post_like_api_news__news_id__like_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "news_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "News Id"
+            }
+          },
+          {
+            "name": "user-email",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User-Email"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NewsLikeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "news"
+        ],
+        "summary": "News undo like endpoint",
+        "description": "Allows user to undo a like to a news item",
+        "operationId": "delete_like_api_news__news_id__like_delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "news_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "News Id"
+            }
+          },
+          {
+            "name": "user-email",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User-Email"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NewsLikeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/authentication/create_commumity": {
+      "post": {
+        "tags": [
+          "authentication"
+        ],
+        "summary": "Create Community",
+        "operationId": "create_community_api_authentication_create_commumity_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/authentication/token": {
+      "post": {
+        "tags": [
+          "authentication"
+        ],
+        "summary": "Login For Access Token",
+        "operationId": "login_for_access_token_api_authentication_token_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_login_for_access_token_api_authentication_token_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/authentication/me": {
+      "get": {
+        "tags": [
+          "authentication"
+        ],
+        "summary": "Read Community Me",
+        "operationId": "read_community_me_api_authentication_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Community"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/libraries": {
+      "get": {
+        "tags": [
+          "libraries"
+        ],
+        "summary": "Get libraries by language",
+        "description": "Get libraries by language",
+        "operationId": "get_by_language_api_libraries_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "language",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Language"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Library-Output"
+                  },
+                  "title": "Response Get By Language Api Libraries Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "libraries"
+        ],
+        "summary": "Create a library",
+        "description": "Create a new library to follow",
+        "operationId": "create_library_api_libraries_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Library-Input"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/libraries/subscribe": {
+      "post": {
+        "tags": [
+          "libraries"
+        ],
+        "summary": "Subscribe to receive library updates",
+        "description": "Subscribe to multiple libs and tags to receive libs updates",
+        "operationId": "subscribe_libraries_api_libraries_subscribe_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user-email",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User-Email"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Subscription"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscribeLibraryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/libraries/request": {
+      "post": {
+        "tags": [
+          "libraries"
+        ],
+        "summary": "Request a library",
+        "description": "Request a library to follow",
+        "operationId": "request_library_api_libraries_request_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user-email",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User-Email"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LibraryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LibraryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Body_login_for_access_token_api_authentication_token_post": {
+        "properties": {
+          "grant_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^password$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grant Type"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "title": "Password"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope",
+            "default": ""
+          },
+          "client_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Id"
+          },
+          "client_secret": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "format": "password",
+            "title": "Client Secret"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "Body_login_for_access_token_api_authentication_token_post"
+      },
+      "Community": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "email"
+        ],
+        "title": "Community"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthCheckResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "healthy"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "default": "2.0.0"
+          }
+        },
+        "type": "object",
+        "title": "HealthCheckResponse"
+      },
+      "Library-Input": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "library_name": {
+            "type": "string",
+            "title": "Library Name"
+          },
+          "news": {
+            "items": {
+              "$ref": "#/components/schemas/LibraryNews"
+            },
+            "type": "array",
+            "title": "News"
+          },
+          "logo": {
+            "type": "string",
+            "title": "Logo"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "release_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Release Date"
+          },
+          "releases_doc_url": {
+            "type": "string",
+            "title": "Releases Doc Url"
+          },
+          "fixed_release_url": {
+            "type": "string",
+            "title": "Fixed Release Url"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language"
+          }
+        },
+        "type": "object",
+        "required": [
+          "library_name",
+          "news",
+          "logo",
+          "version",
+          "release_date",
+          "releases_doc_url",
+          "fixed_release_url",
+          "language"
+        ],
+        "title": "Library"
+      },
+      "Library-Output": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "library_name": {
+            "type": "string",
+            "title": "Library Name"
+          },
+          "news": {
+            "items": {
+              "$ref": "#/components/schemas/LibraryNews"
+            },
+            "type": "array",
+            "title": "News"
+          },
+          "logo": {
+            "type": "string",
+            "title": "Logo"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "release_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Release Date"
+          },
+          "releases_doc_url": {
+            "type": "string",
+            "title": "Releases Doc Url"
+          },
+          "fixed_release_url": {
+            "type": "string",
+            "title": "Fixed Release Url"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language"
+          }
+        },
+        "type": "object",
+        "required": [
+          "library_name",
+          "news",
+          "logo",
+          "version",
+          "release_date",
+          "releases_doc_url",
+          "fixed_release_url",
+          "language"
+        ],
+        "title": "Library"
+      },
+      "LibraryNews": {
+        "properties": {
+          "tag": {
+            "$ref": "#/components/schemas/LibraryTagUpdatesEnum"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tag",
+          "description"
+        ],
+        "title": "LibraryNews"
+      },
+      "LibraryRequest": {
+        "properties": {
+          "library_name": {
+            "type": "string",
+            "title": "Library Name"
+          },
+          "library_home_page": {
+            "type": "string",
+            "title": "Library Home Page"
+          }
+        },
+        "type": "object",
+        "required": [
+          "library_name",
+          "library_home_page"
+        ],
+        "title": "LibraryRequest"
+      },
+      "LibraryResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "Library created successfully"
+          }
+        },
+        "type": "object",
+        "title": "LibraryResponse"
+      },
+      "LibraryTagUpdatesEnum": {
+        "type": "string",
+        "enum": [
+          "updates",
+          "bug_fix",
+          "new_feature",
+          "security_fix"
+        ],
+        "title": "LibraryTagUpdatesEnum"
+      },
+      "News": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "tags": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tags"
+          },
+          "source_url": {
+            "type": "string",
+            "title": "Source Url"
+          },
+          "social_media_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Social Media Url"
+          },
+          "likes": {
+            "type": "integer",
+            "title": "Likes",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "content",
+          "category",
+          "source_url"
+        ],
+        "title": "News"
+      },
+      "NewsGetResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "Lista de News Obtida"
+          },
+          "news_list": {
+            "items": {},
+            "type": "array",
+            "title": "News List",
+            "default": []
+          }
+        },
+        "type": "object",
+        "title": "NewsGetResponse"
+      },
+      "NewsLikeResponse": {
+        "properties": {
+          "total_likes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Likes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_likes"
+        ],
+        "title": "NewsLikeResponse"
+      },
+      "NewsPostResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "News Criada"
+          }
+        },
+        "type": "object",
+        "title": "NewsPostResponse"
+      },
+      "SubscribeLibraryResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "Subscribed in libraries successfully"
+          }
+        },
+        "type": "object",
+        "title": "SubscribeLibraryResponse"
+      },
+      "Subscription": {
+        "properties": {
+          "tags": {
+            "items": {
+              "$ref": "#/components/schemas/LibraryTagUpdatesEnum"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "libraries_list": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Libraries List"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tags",
+          "libraries_list"
+        ],
+        "title": "Subscription"
+      },
+      "Token": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "token_type",
+          "expires_in"
+        ],
+        "title": "Token"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2PasswordBearer": {
+        "type": "oauth2",
+        "flows": {
+          "password": {
+            "scopes": {},
+            "tokenUrl": "/authentication/token"
+          }
+        }
+      }
+    }
+  }
+}
