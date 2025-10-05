@@ -20,9 +20,8 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install Python dependencies (mínimas para OpenAPI)
-        run: |
-          pip install -r requirements.txt
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
 
       - name: Export OpenAPI schema
         env:
@@ -32,8 +31,7 @@ jobs:
           SQLITE_PATH: /tmp/pynewsdb.db
           SQLITE_URL: sqlite+aiosqlite:////tmp/pynewsdb.db
           PYTHONPATH: .
-        run: |
-          python scripts/export_openapi.py app.main:app openapi.json
+        run: python scripts/export_openapi.py app.main:app openapi.json
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -41,11 +39,23 @@ jobs:
           node-version: '20'
 
       - name: Generate static docs (Redoc)
-        run: |
-          npx --yes redoc-cli bundle openapi.json -o docs/index.html
+        run: npx --yes redoc-cli bundle openapi.json -o docs/index.html
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Upload built site to Pages
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/_build/html
+          path: docs
+
+  deploy:
+    needs: build-docs
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
