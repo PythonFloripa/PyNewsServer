@@ -4,6 +4,6 @@
 :maxdepth: 2
 :caption: Sumário
 
-../README
+readme
 api
 ```
