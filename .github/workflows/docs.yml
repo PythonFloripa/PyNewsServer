@@ -12,6 +12,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Copia README.md para docs/
+        run: tail -n +2 README.md >> docs/readme.md
+
       - name: Disable Jekyll
         run: touch docs/.nojekyll
 
@@ -31,20 +34,15 @@ jobs:
           SQLITE_PATH: /tmp/pynewsdb.db
           SQLITE_URL: sqlite+aiosqlite:////tmp/pynewsdb.db
           PYTHONPATH: .
-        run: python scripts/export_openapi.py app.main:app openapi.json
+        run: python scripts/export_openapi.py app.main:app docs/openapi.json
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Generate static docs (Redoc)
-        run: npx --yes redoc-cli bundle openapi.json -o docs/index.html
+      - name: Build Sphinx docs (com Redoc embutido)
+        run: sphinx-build -b html docs/ docs/_build/html
 
       - name: Upload built site to Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs
+          path: docs/_build/html
 
   deploy:
     needs: build-docs
