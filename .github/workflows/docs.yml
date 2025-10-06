@@ -1,0 +1,59 @@
+name: Deploy API Docs to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copia README.md para docs/
+        run: tail -n +2 README.md >> docs/readme.md
+
+      - name: Disable Jekyll
+        run: touch docs/.nojekyll
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Export OpenAPI schema
+        env:
+          SECRET_KEY: dummy
+          ALGORITHM: HS256
+          ACCESS_TOKEN_EXPIRE_MINUTES: 20
+          SQLITE_PATH: /tmp/pynewsdb.db
+          SQLITE_URL: sqlite+aiosqlite:////tmp/pynewsdb.db
+          PYTHONPATH: .
+        run: python scripts/export_openapi.py app.main:app docs/openapi.json
+
+      - name: Build Sphinx docs (com Redoc embutido)
+        run: sphinx-build -b html docs/ docs/_build/html
+
+      - name: Upload built site to Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/_build/html
+
+  deploy:
+    needs: build-docs
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
