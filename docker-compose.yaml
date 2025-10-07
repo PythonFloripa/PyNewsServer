@@ -14,7 +14,7 @@ services:
       - SQLITE_PATH=app/services/database/pynewsdb.db
       - SQLITE_URL=sqlite+aiosqlite://
       - SECRET_KEY=1a6c5f3b7d2e4a7fb68d0casd3f9a7b2d8c4e5f6a3b0d4e9c7a8f1b6d3c0a7f5e
-      - ENCRYPTION_KEY=smR739opNB9FJ4hEm5ZIG8Gr-Qnvqtem4ehwl4RIUes=
+      - ENCRYPTION_KEY=r0-QKv5qACJNFRqy2cNZCsfZ_zVvehlC-v8zDJb--EI=
       - ADMIN_USER=admin
       - ADMIN_PASSWORD=admin
       - ALGORITHM=HS256

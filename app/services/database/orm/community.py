@@ -1,10 +1,10 @@
 from typing import Optional
 
-from fastapi import Request
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.services.database.models import Community
+from app.services.encryption import decrypt_email, encrypt_email
 
 
 async def get_community_by_username(
@@ -21,19 +21,22 @@ async def get_community_by_username(
     # Executa a declaração na sessão e retorna o primeiro resultado
     result = await session.exec(statement)
     community = result.first()
+    # add tratamento de descriptografia do email
+    if community is not None:
+        community.email = decrypt_email(community.email)
 
     return community
 
 
 async def create_community(
-    request: Request,
+    session: AsyncSession,
     community: Community,  # community model
 ) -> Optional[Community]:
     """
     Cria um novo membro da comunidade.
     Somente usuário autenticado e com role Admin podem executar.
     """
-    session: AsyncSession = request.app.db_session_factory
+    community.email = encrypt_email(community.email)
     session.add(community)
     await session.commit()
     await session.refresh(community)

@@ -3,6 +3,7 @@ import os
 from cryptography.fernet import Fernet
 
 test_encryption_key = "r0-QKv5qACJNFRqy2cNZCsfZ_zVvehlC-v8zDJb--EI="
+# print(Fernet.generate_key())
 # Carrega a chave da variável de ambiente
 ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", test_encryption_key)
 
@@ -11,14 +12,19 @@ if not ENCRYPTION_KEY:
         "ENCRYPTION_KEY não está definida nas variáveis de ambiente."
     )
 
-cipher = Fernet(ENCRYPTION_KEY.encode())
+cipher = Fernet(ENCRYPTION_KEY)
 
 
 def encrypt_email(email: str) -> str:
     """Criptografa uma string de e-mail."""
-    return cipher.encrypt(email.encode()).decode()
+    #    var = cipher.encrypt(b'{email}')
+
+    var = cipher.encrypt(email.encode("utf-8"))
+    print(f"encrypt_email: {email} -> {var}")
+    print(len(var))
+    return var
 
 
 def decrypt_email(encrypted_email: str) -> str:
     """Descriptografa uma string de e-mail."""
-    return cipher.decrypt(encrypted_email.encode()).decode()
+    return cipher.decrypt(encrypted_email).decode("utf-8")

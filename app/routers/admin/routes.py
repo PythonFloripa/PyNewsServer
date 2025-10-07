@@ -61,7 +61,8 @@ def setup():
         admin_role = admin_community.role
         if admin_role != "admin":
             return {"status": "Unauthorized"}
-        await create_community(request=request, community=community)
+        session: AsyncSession = request.app.db_session_factory
+        await create_community(session=session, community=community)
 
         return CommunityPostResponse()
 
