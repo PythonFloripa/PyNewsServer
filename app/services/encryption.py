@@ -11,14 +11,14 @@ if not ENCRYPTION_KEY:
         "ENCRYPTION_KEY não está definida nas variáveis de ambiente."
     )
 
-cipher = Fernet(ENCRYPTION_KEY.encode())
+cipher = Fernet(ENCRYPTION_KEY)
 
 
 def encrypt_email(email: str) -> str:
     """Criptografa uma string de e-mail."""
-    return cipher.encrypt(email.encode()).decode()
+    return cipher.encrypt(email.encode())
 
 
 def decrypt_email(encrypted_email: str) -> str:
     """Descriptografa uma string de e-mail."""
-    return cipher.decrypt(encrypted_email.encode()).decode()
+    return cipher.decrypt(encrypted_email).decode()
