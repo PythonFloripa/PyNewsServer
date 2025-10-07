@@ -9,12 +9,13 @@ from app.routers.authentication import get_current_active_community
 from app.services import auth
 from app.services.database.models import Community as DBCommunity  # Precisa?
 from app.services.database.orm.community import create_community
+from app.services.limiter import limiter
 
 # ADMIN_USER = os.getenv("ADMIN_USER")
 # ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
 
-async def create_community_admin(session: AsyncSession):
+async def create_admin(session: AsyncSession):
     ADMIN_USER = os.getenv("ADMIN_USER")
     ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
     password = ADMIN_PASSWORD
@@ -25,7 +26,6 @@ async def create_community_admin(session: AsyncSession):
         password=hashed_password,
         role="admin",
     )
-    session: AsyncSession = session
     session.add(community)
     await session.commit()
     await session.refresh(community)
@@ -37,30 +37,32 @@ class CommunityPostResponse(BaseModel):
 
 
 def setup():
-    router = APIRouter(prefix="/admin", tags=["news"])
+    router = APIRouter(prefix="/admin", tags=["admin"])
 
     @router.post(
-        "create_community",
+        "/create_community",
         response_model=CommunityPostResponse,
-        status_code=status.HTTP_200_OK,
+        status_code=status.HTTP_201_CREATED,
         summary="Create Community endpoint",
         description="Create Community and returns a confirmation message",
     )
+    @limiter.limit("60/minute")
     async def post_create_community(
         request: Request,
         admin_community: Annotated[
             DBCommunity, Depends(get_current_active_community)
         ],
-        community: Annotated[DBCommunity],
+        community: DBCommunity,
     ):
         """
-        Server Admin endpoint that creates Community and returns a confirmation message.
+        Server Admin endpoint that creates Community and returns a confirmation
+          message.
         """
-        admin_role = admin_community.get("role")
+        admin_role = admin_community.role
         if admin_role != "admin":
             return {"status": "Unauthorized"}
-        await create_community(
-            session=request.app.db_session_factory, community=community
-        )
+        await create_community(request=request, community=community)
 
         return CommunityPostResponse()
+
+    return router
