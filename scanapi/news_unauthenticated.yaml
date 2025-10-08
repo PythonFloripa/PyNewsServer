@@ -4,7 +4,7 @@ requests:
   - name: get_news
     tests:
       - !include tests/status_code_is_401.yaml
-      - !include tests/body_detail_not_authenticated.yaml
+      - !include tests/authentication/body_detail_not_authenticated.yaml
   - name: create_news
     method: POST
     body:
@@ -16,4 +16,4 @@ requests:
       social_media_url: "https://example.com/testnews"
     tests:
       - !include tests/status_code_is_401.yaml
-      - !include tests/body_detail_not_authenticated.yaml
+      - !include tests/authentication/body_detail_not_authenticated.yaml

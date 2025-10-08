@@ -9,7 +9,7 @@ endpoints:
         path: healthcheck
         tests:
           - !include tests/status_code_is_200.yaml
-          - !include tests/body_healthcheck_status_healthy.yaml
+          - !include tests/healthcheck/body_status_healthy.yaml
       - name: create_community
         path: authentication/create_community
         method: POST
@@ -24,8 +24,7 @@ endpoints:
           username: ${community_username}
           password: ${community_password}
         tests:
-          - name: try_login_for_access_token
-            assert: ${{ response.status_code == 200 }}
+          - !include tests/status_code_is_200.yaml
         vars:
           access_token: ${{ response.json()["access_token"] }}
     endpoints:

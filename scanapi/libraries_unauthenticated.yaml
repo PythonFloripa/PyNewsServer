@@ -6,4 +6,40 @@ requests:
       language: Python
     tests:
       - !include tests/status_code_is_401.yaml
-      - !include tests/body_detail_not_authenticated.yaml
+      - !include tests/authentication/body_detail_not_authenticated.yaml
+  - name: create_library
+    method: POST
+    body:
+      library_name: "Python"
+      news:
+        - tag: "updates"
+          description: "News about Python"
+      logo: "https://example.com/python-logo.png"
+      version: "1.0.0"
+      release_date: "2023-01-01"
+      releases_doc_url: "https://example.com/python-release-notes.txt"
+      fixed_release_url: "https://example.com/python-fixed-release.txt"
+      language: "Python"
+    tests:
+      - !include tests/status_code_is_401.yaml
+      - !include tests/authentication/body_detail_not_authenticated.yaml
+  - name: subscribe_to_library
+    path: subscribe
+    method: POST
+    body:
+      tags:
+        - updates
+      libraries_list:
+        - Flask
+    tests:
+      - !include tests/status_code_is_401.yaml
+      - !include tests/authentication/body_detail_not_authenticated.yaml
+  - name: request_library_news
+    path: request
+    method: POST
+    body:
+      library_name: "Flask"
+      library_home_page: "https://flask.palletsprojects.com/en/2.3.x/"
+    tests:
+      - !include tests/status_code_is_401.yaml
+      - !include tests/authentication/body_detail_not_authenticated.yaml
