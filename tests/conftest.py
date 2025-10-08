@@ -1,3 +1,4 @@
+import os
 from collections.abc import AsyncGenerator
 
 import pytest
@@ -22,6 +23,10 @@ from app.services.encryption import encrypt_email
 # Usamos engine e AsyncSessionLocal apenas para os testes.
 # Isso garante que os testes são isolados e usam o banco de dados em memória.
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+os.environ["ADMIN_USER"] = "ADMIN_USER"
+os.environ["ADMIN_PASSWORD"] = "ADMIN_PASSWORD"
+os.environ["ADMIN_EMAIL"] = "ADMIN_EMAIL"
+
 
 test_engine = create_async_engine(TEST_DATABASE_URL, echo=False, future=True)
 
