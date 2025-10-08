@@ -17,7 +17,11 @@ cipher = Fernet(ENCRYPTION_KEY)
 
 def encrypt_email(email: str) -> str:
     """Criptografa uma string de e-mail."""
-    return cipher.encrypt(email.encode())
+    var_test = cipher.encrypt(email.encode())
+    print(f"cipher email {var_test}")
+    var_test_de = cipher.decrypt(var_test).decode()
+    print(f"decipher email {var_test_de}")
+    return var_test
 
 
 def decrypt_email(encrypted_email: str) -> str:
