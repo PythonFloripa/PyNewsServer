@@ -1,5 +1,7 @@
 name: news_unauthenticated
 path: news
+vars:
+  news_id: "1"
 requests:
   - name: get_news
     tests:
@@ -14,6 +16,22 @@ requests:
       tags: "test_tag"
       source_url: "https://example.com/test-news"
       social_media_url: "https://example.com/testnews"
+    tests:
+      - !include tests/status_code_is_401.yaml
+      - !include tests/authentication/body_detail_not_authenticated.yaml
+  - name: like_news
+    path: ${news_id}/like
+    method: POST
+    body:
+      total_likes: 1
+    tests:
+      - !include tests/status_code_is_401.yaml
+      - !include tests/authentication/body_detail_not_authenticated.yaml
+  - name: dislike_news
+    path: ${news_id}/like
+    method: DELETE
+    body:
+      total_likes: 1
     tests:
       - !include tests/status_code_is_401.yaml
       - !include tests/authentication/body_detail_not_authenticated.yaml
