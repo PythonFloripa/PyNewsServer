@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -11,7 +13,6 @@ from app.services.encryption import decrypt_email
 TEST_USERNAME = "test_user_crypto"
 TEST_EMAIL = "crypto@test.com"
 TEST_PASSWORD = "@SafePassword123"
-import os
 
 
 @pytest.mark.asyncio
