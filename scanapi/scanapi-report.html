@@ -470,9 +470,9 @@
     <div class="wrapper summary">
         <header class="summary__title">
             
-            <h1 class="summary__title__name">Report generated for <span class="summary__title__project">PyNewsServer</span></h1>
+            <h1 class="summary__title__name">Report generated for your API</h1>
             
-            <p class="summary__title__overview">Generated at: 2025-10-06 23:45:27</p>
+            <p class="summary__title__overview">Generated at: 2025-10-07 22:56:54</p>
         </header>
 
         <!-- summary_box -->
@@ -590,7 +590,7 @@
                                         response time
                                     </td>
                                     <td class="wordbreak">
-                                        0.01286 s
+                                        0.013013 s
                                     </td>
                                 </tr>
                                 <tr>
@@ -624,7 +624,7 @@
                                             date
                                         </td>
                                         <td class="wordbreak">
-                                            Tue, 07 Oct 2025 02:45:27 GMT
+                                            Wed, 08 Oct 2025 01:56:54 GMT
                                         </td>
                                     </tr>
                                 </tbody>
@@ -682,7 +682,21 @@
                             </div>
                             <div class="endpoint__testcaseLabel">
                                 <span>
-                                    py_news_server::healthcheck::check
+                                    py_news_server::healthcheck::status_code_is_200
+                                </span>
+                                
+                                
+                            </div>
+                        </div>
+                        <div class="endpoint__testcase">
+                            <div class="endpoint__testcaseStatus">
+                                <strong class="endpoint__testcase-passed">
+                                    [PASSED]
+                                </strong>
+                            </div>
+                            <div class="endpoint__testcaseLabel">
+                                <span>
+                                    py_news_server::healthcheck::body_healthcheck_healthy
                                 </span>
                                 
                                 
@@ -821,7 +835,7 @@
                                         response time
                                     </td>
                                     <td class="wordbreak">
-                                        0.266099 s
+                                        0.266875 s
                                     </td>
                                 </tr>
                                 <tr>
@@ -855,7 +869,7 @@
                                             date
                                         </td>
                                         <td class="wordbreak">
-                                            Tue, 07 Oct 2025 02:45:28 GMT
+                                            Wed, 08 Oct 2025 01:56:54 GMT
                                         </td>
                                     </tr>
                                 </tbody>
@@ -1038,7 +1052,7 @@
                                         response time
                                     </td>
                                     <td class="wordbreak">
-                                        0.265343 s
+                                        0.267864 s
                                     </td>
                                 </tr>
                                 <tr>
@@ -1072,7 +1086,7 @@
                                             date
                                         </td>
                                         <td class="wordbreak">
-                                            Tue, 07 Oct 2025 02:45:28 GMT
+                                            Wed, 08 Oct 2025 01:56:54 GMT
                                         </td>
                                     </tr>
                                 </tbody>
@@ -1113,7 +1127,7 @@
                         <details>
                             <summary>Content</summary>
                             <p class="json-body">
-                                 {&#34;access_token&#34;: &#34;SENSITIVE_INFORMATION&#34;, &#34;token_type&#34;: &#34;Bearer&#34;, &#34;expires_in&#34;: 1200} 
+                                 {&#34;access_token&#34;:&#34;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VybmFtZSIsImV4cCI6MTc1OTg4OTgxNn0.baYuukh28o5U-KMRQn-S-gL9N77IkQfXh6PCkjRBOWc&#34;,&#34;token_type&#34;:&#34;Bearer&#34;,&#34;expires_in&#34;:1200} 
                             </p>
                             <button class="copy__snippet">&#10063;</button>
                         </details>
@@ -1153,7 +1167,491 @@
                     <span class="endpoint__url">
                         <img data-anchor="endpoint_4" class="copy__link_anchor_url" src="https://scanapi.s3.us-east-2.amazonaws.com/assets/images/icons/link.svg">
                         <span class="http_method">GET</span> 
-                        <span class="endpoint__request_node_name">get_news_with_authentication</span>
+                        <span class="endpoint__request_node_name">get_libraries</span>
+                    </span>
+                    <span class="endpoint__titleInfo">
+                        200
+                        <span class="endpoint__status endpoint__status--P">
+                            P
+                        </span>
+                    </span>
+                </label>
+    
+                <div class="endpoint__content">
+                    <section class="endpoint__request">
+                        <h3>Request</h3>
+                        <p>Full URL: <a href="http://localhost:8000/api/libraries?language=Python"> http://localhost:8000/api/libraries?language=Python</a></p>
+    
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Header
+                                    </th>
+                                    <th>
+                                        Value
+                                    </th>
+                                </tr>
+                            </thead>
+    
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        host
+                                    </td>
+                                    <td class="wordbreak">
+                                        localhost:8000
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        accept
+                                    </td>
+                                    <td class="wordbreak">
+                                        */*
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        accept-encoding
+                                    </td>
+                                    <td class="wordbreak">
+                                        gzip, deflate
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        connection
+                                    </td>
+                                    <td class="wordbreak">
+                                        keep-alive
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        user-agent
+                                    </td>
+                                    <td class="wordbreak">
+                                        python-httpx/0.27.2
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        authorization
+                                    </td>
+                                    <td class="wordbreak">
+                                        Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VybmFtZSIsImV4cCI6MTc1OTg4OTgxNn0.baYuukh28o5U-KMRQn-S-gL9N77IkQfXh6PCkjRBOWc
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        user-email
+                                    </td>
+                                    <td class="wordbreak">
+                                        teste@teste.com
+                                    </td>
+                                </tr>
+                                
+                            </tbody>
+                        </table>
+                        
+    
+                        
+    
+                        <details>
+                            <summary>cURL</summary>
+                            <pre>curl -X GET -H &#34;host: localhost:8000&#34; -H &#34;accept: */*&#34; -H &#34;accept-encoding: gzip, deflate&#34; -H &#34;connection: keep-alive&#34; -H &#34;user-agent: python-httpx/0.27.2&#34; -H &#34;authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VybmFtZSIsImV4cCI6MTc1OTg4OTgxNn0.baYuukh28o5U-KMRQn-S-gL9N77IkQfXh6PCkjRBOWc&#34; -H &#34;user-email: teste@teste.com&#34; -d &#39;b&#39;&#39;&#39; http://localhost:8000/api/libraries?language=Python --compressed</pre>
+                            <button class="copy__snippet">&#10063;</button>
+                        </details>
+                    </section>
+    
+                    <section class="endpoint__response">
+                        <h3>Response</h3>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        status code
+                                    </td>
+                                    <td class="wordbreak">
+                                        200
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        response time
+                                    </td>
+                                    <td class="wordbreak">
+                                        0.00867 s
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        redirect
+                                    </td>
+                                    <td class="wordbreak">
+                                        False
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+    
+                        
+                        <details>
+                            <summary>Headers</summary>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Header
+                                        </th>
+                                        <th>
+                                            Value
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            date
+                                        </td>
+                                        <td class="wordbreak">
+                                            Wed, 08 Oct 2025 01:56:56 GMT
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            server
+                                        </td>
+                                        <td class="wordbreak">
+                                            uvicorn
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            content-length
+                                        </td>
+                                        <td class="wordbreak">
+                                            300
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            content-type
+                                        </td>
+                                        <td class="wordbreak">
+                                            application/json
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                
+                            </table>
+                        </details>
+    
+                        <details>
+                            <summary>Content</summary>
+                            <p class="json-body">
+                                 [{&#34;id&#34;:null,&#34;library_name&#34;:&#34;FastAPI&#34;,&#34;news&#34;:[{&#34;tag&#34;:&#34;updates&#34;,&#34;description&#34;:&#34;Updated&#34;},{&#34;tag&#34;:&#34;bug_fix&#34;,&#34;description&#34;:&#34;Fixed&#34;}],&#34;logo&#34;:&#34;http://teste.com/&#34;,&#34;version&#34;:&#34;3.11&#34;,&#34;release_date&#34;:&#34;2025-01-01&#34;,&#34;releases_doc_url&#34;:&#34;http://teste.com/&#34;,&#34;fixed_release_url&#34;:&#34;http://teste.com/&#34;,&#34;language&#34;:&#34;Python&#34;}] 
+                            </p>
+                            <button class="copy__snippet">&#10063;</button>
+                        </details>
+                        
+                    </section>
+    
+                    <section class="endpoint__tests">
+                        <h3>Tests</h3>
+                        <div class="endpoint__testcase">
+                            <div class="endpoint__testcaseStatus">
+                                <strong class="endpoint__testcase-passed">
+                                    [PASSED]
+                                </strong>
+                            </div>
+                            <div class="endpoint__testcaseLabel">
+                                <span>
+                                    py_news_server::libraries_authenticated::get_libraries::status_code_is_200
+                                </span>
+                                
+                                
+                            </div>
+                        </div>
+                        <div class="endpoint__testcase">
+                            <div class="endpoint__testcaseStatus">
+                                <strong class="endpoint__testcase-passed">
+                                    [PASSED]
+                                </strong>
+                            </div>
+                            <div class="endpoint__testcaseLabel">
+                                <span>
+                                    py_news_server::libraries_authenticated::get_libraries::body_is_array
+                                </span>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                    </section>
+                </div>
+            </div>
+            
+            
+            
+            
+            
+            
+
+            <div class="endpoint" id="endpoint_5">
+                <input type="checkbox" class="endpoint__checkbox" id="chck_5" />
+                <label class="endpoint__title" for="chck_5">
+                    <span class="endpoint__url">
+                        <img data-anchor="endpoint_5" class="copy__link_anchor_url" src="https://scanapi.s3.us-east-2.amazonaws.com/assets/images/icons/link.svg">
+                        <span class="http_method">GET</span> 
+                        <span class="endpoint__request_node_name">get_libraries</span>
+                    </span>
+                    <span class="endpoint__titleInfo">
+                        401
+                        <span class="endpoint__status endpoint__status--P">
+                            P
+                        </span>
+                    </span>
+                </label>
+    
+                <div class="endpoint__content">
+                    <section class="endpoint__request">
+                        <h3>Request</h3>
+                        <p>Full URL: <a href="http://localhost:8000/api/libraries?language=Python"> http://localhost:8000/api/libraries?language=Python</a></p>
+    
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Header
+                                    </th>
+                                    <th>
+                                        Value
+                                    </th>
+                                </tr>
+                            </thead>
+    
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        host
+                                    </td>
+                                    <td class="wordbreak">
+                                        localhost:8000
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        accept
+                                    </td>
+                                    <td class="wordbreak">
+                                        */*
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        accept-encoding
+                                    </td>
+                                    <td class="wordbreak">
+                                        gzip, deflate
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        connection
+                                    </td>
+                                    <td class="wordbreak">
+                                        keep-alive
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        user-agent
+                                    </td>
+                                    <td class="wordbreak">
+                                        python-httpx/0.27.2
+                                    </td>
+                                </tr>
+                                
+                            </tbody>
+                        </table>
+                        
+    
+                        
+    
+                        <details>
+                            <summary>cURL</summary>
+                            <pre>curl -X GET -H &#34;host: localhost:8000&#34; -H &#34;accept: */*&#34; -H &#34;accept-encoding: gzip, deflate&#34; -H &#34;connection: keep-alive&#34; -H &#34;user-agent: python-httpx/0.27.2&#34; -d &#39;b&#39;&#39;&#39; http://localhost:8000/api/libraries?language=Python --compressed</pre>
+                            <button class="copy__snippet">&#10063;</button>
+                        </details>
+                    </section>
+    
+                    <section class="endpoint__response">
+                        <h3>Response</h3>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        status code
+                                    </td>
+                                    <td class="wordbreak">
+                                        401
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        response time
+                                    </td>
+                                    <td class="wordbreak">
+                                        0.005104 s
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        redirect
+                                    </td>
+                                    <td class="wordbreak">
+                                        False
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+    
+                        
+                        <details>
+                            <summary>Headers</summary>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Header
+                                        </th>
+                                        <th>
+                                            Value
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            date
+                                        </td>
+                                        <td class="wordbreak">
+                                            Wed, 08 Oct 2025 01:56:56 GMT
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            server
+                                        </td>
+                                        <td class="wordbreak">
+                                            uvicorn
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            www-authenticate
+                                        </td>
+                                        <td class="wordbreak">
+                                            Bearer
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            content-length
+                                        </td>
+                                        <td class="wordbreak">
+                                            30
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            content-type
+                                        </td>
+                                        <td class="wordbreak">
+                                            application/json
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                
+                            </table>
+                        </details>
+    
+                        <details>
+                            <summary>Content</summary>
+                            <p class="json-body">
+                                 {&#34;detail&#34;:&#34;Not authenticated&#34;} 
+                            </p>
+                            <button class="copy__snippet">&#10063;</button>
+                        </details>
+                        
+                    </section>
+    
+                    <section class="endpoint__tests">
+                        <h3>Tests</h3>
+                        <div class="endpoint__testcase">
+                            <div class="endpoint__testcaseStatus">
+                                <strong class="endpoint__testcase-passed">
+                                    [PASSED]
+                                </strong>
+                            </div>
+                            <div class="endpoint__testcaseLabel">
+                                <span>
+                                    py_news_server::libraries_unauthenticated::get_libraries::status_code_is_401
+                                </span>
+                                
+                                
+                            </div>
+                        </div>
+                        <div class="endpoint__testcase">
+                            <div class="endpoint__testcaseStatus">
+                                <strong class="endpoint__testcase-passed">
+                                    [PASSED]
+                                </strong>
+                            </div>
+                            <div class="endpoint__testcaseLabel">
+                                <span>
+                                    py_news_server::libraries_unauthenticated::get_libraries::body_detail_not_authenticated
+                                </span>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                    </section>
+                </div>
+            </div>
+            
+            
+            
+            
+            
+            
+
+            <div class="endpoint" id="endpoint_6">
+                <input type="checkbox" class="endpoint__checkbox" id="chck_6" />
+                <label class="endpoint__title" for="chck_6">
+                    <span class="endpoint__url">
+                        <img data-anchor="endpoint_6" class="copy__link_anchor_url" src="https://scanapi.s3.us-east-2.amazonaws.com/assets/images/icons/link.svg">
+                        <span class="http_method">GET</span> 
+                        <span class="endpoint__request_node_name">get_news</span>
                     </span>
                     <span class="endpoint__titleInfo">
                         200
@@ -1227,7 +1725,7 @@
                                         authorization
                                     </td>
                                     <td class="wordbreak">
-                                        SENSITIVE_INFORMATION
+                                        Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VybmFtZSIsImV4cCI6MTc1OTg4OTgxNn0.baYuukh28o5U-KMRQn-S-gL9N77IkQfXh6PCkjRBOWc
                                     </td>
                                 </tr>
                                 <tr>
@@ -1247,7 +1745,7 @@
     
                         <details>
                             <summary>cURL</summary>
-                            <pre>curl -X GET -H &#34;host: localhost:8000&#34; -H &#34;accept: */*&#34; -H &#34;accept-encoding: gzip, deflate&#34; -H &#34;connection: keep-alive&#34; -H &#34;user-agent: python-httpx/0.27.2&#34; -H &#34;authorization: SENSITIVE_INFORMATION&#34; -H &#34;user-email: teste@teste.com&#34; -d &#39;b&#39;&#39;&#39; http://localhost:8000/api/news --compressed</pre>
+                            <pre>curl -X GET -H &#34;host: localhost:8000&#34; -H &#34;accept: */*&#34; -H &#34;accept-encoding: gzip, deflate&#34; -H &#34;connection: keep-alive&#34; -H &#34;user-agent: python-httpx/0.27.2&#34; -H &#34;authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VybmFtZSIsImV4cCI6MTc1OTg4OTgxNn0.baYuukh28o5U-KMRQn-S-gL9N77IkQfXh6PCkjRBOWc&#34; -H &#34;user-email: teste@teste.com&#34; -d &#39;b&#39;&#39;&#39; http://localhost:8000/api/news --compressed</pre>
                             <button class="copy__snippet">&#10063;</button>
                         </details>
                     </section>
@@ -1269,7 +1767,7 @@
                                         response time
                                     </td>
                                     <td class="wordbreak">
-                                        0.013422 s
+                                        0.010258 s
                                     </td>
                                 </tr>
                                 <tr>
@@ -1303,7 +1801,7 @@
                                             date
                                         </td>
                                         <td class="wordbreak">
-                                            Tue, 07 Oct 2025 02:45:29 GMT
+                                            Wed, 08 Oct 2025 01:56:57 GMT
                                         </td>
                                     </tr>
                                 </tbody>
@@ -1323,7 +1821,7 @@
                                             content-length
                                         </td>
                                         <td class="wordbreak">
-                                            48
+                                            4965
                                         </td>
                                     </tr>
                                 </tbody>
@@ -1344,7 +1842,7 @@
                         <details>
                             <summary>Content</summary>
                             <p class="json-body">
-                                 {&#34;status&#34;:&#34;Lista de News Obtida&#34;,&#34;news_list&#34;:[]} 
+                                 {&#34;status&#34;:&#34;Lista de News Obtida&#34;,&#34;news_list&#34;:[{&#34;content&#34;:&#34;This is a test news article.&#34;,&#34;title&#34;:&#34;Test News&#34;,&#34;category&#34;:&#34;test_category&#34;,&#34;source_url&#34;:&#34;https://example.com/test-news&#34;,&#34;user_email_list&#34;:&#34;[]&#34;,&#34;likes&#34;:0,&#34;created_at&#34;:&#34;2025-10-08T00:32:55.338404&#34;,&#34;user_email&#34;:&#34;teste@teste.com&#34;,&#34;id&#34;:1,&#34;tags&#34;:&#34;test_tag&#34;,&#34;social_media_url&#34;:&#34;https://example.com/testnews&#34;,&#34;community_id&#34;:null,&#34;updated_at&#34;:&#34;2025-10-08T00:32:55.338539&#34;},{&#34;content&#34;:&#34;This is a test news article.&#34;,&#34;title&#34;:&#34;Test News&#34;,&#34;category&#34;:&#34;test_category&#34;,&#34;source_url&#34;:&#34;https://example.com/test-news&#34;,&#34;user_email_list&#34;:&#34;[]&#34;,&#34;likes&#34;:0,&#34;created_at&#34;:&#34;2025-10-08T00:54:27.119068&#34;,&#34;user_email&#34;:&#34;teste@teste.com&#34;,&#34;id&#34;:2,&#34;tags&#34;:&#34;test_tag&#34;,&#34;social_media_url&#34;:&#34;https://example.com/testnews&#34;,&#34;community_id&#34;:null,&#34;updated_at&#34;:&#34;2025-10-08T00:54:27.119200&#34;},{&#34;content&#34;:&#34;This is a test news article.&#34;,&#34;title&#34;:&#34;Test News&#34;,&#34;category&#34;:&#34;test_category&#34;,&#34;source_url&#34;:&#34;https://example.com/test-news&#34;,&#34;user_email_list&#34;:&#34;[]&#34;,&#34;likes&#34;:0,&#34;created_at&#34;:&#34;2025-10-08T00:54:27.855233&#34;,&#34;user_email&#34;:&#34;teste@teste.com&#34;,&#34;id&#34;:3,&#34;tags&#34;:&#34;test_tag&#34;,&#34;social_media_url&#34;:&#34;https://example.com/testnews&#34;,&#34;community_id&#34;:null,&#34;updated_at&#34;:&#34;2025-10-08T00:54:27.855363&#34;},{&#34;content&#34;:&#34;This is a test news article.&#34;,&#34;title&#34;:&#34;Test News&#34;,&#34;category&#34;:&#34;test_category&#34;,&#34;source_url&#34;:&#34;https://example.com/test-news&#34;,&#34;user_email_list&#34;:&#34;[]&#34;,&#34;likes&#34;:0,&#34;created_at&#34;:&#34;2025-10-08T00:55:12.146922&#34;,&#34;user_email&#34;:&#34;teste@teste.com&#34;,&#34;id&#34;:4,&#34;tags&#34;:&#34;test_tag&#34;,&#34;social_media_url&#34;:&#34;https://example.com/testnews&#34;,&#34;community_id&#34;:null,&#34;updated_at&#34;:&#34;2025-10-08T00:55:12.147155&#34;},{&#34;content&#34;:&#34;This is a test news article.&#34;,&#34;title&#34;:&#34;Test News&#34;,&#34;category&#34;:&#34;test_category&#34;,&#34;source_url&#34;:&#34;https://example.com/test-news&#34;,&#34;user_email_list&#34;:&#34;[]&#34;,&#34;likes&#34;:0,&#34;created_at&#34;:&#34;2025-10-08T00:55:12.897038&#34;,&#34;user_email&#34;:&#34;teste@teste.com&#34;,&#34;id&#34;:5,&#34;tags&#34;:&#34;test_tag&#34;,&#34;social_media_url&#34;:&#34;https://example.com/testnews&#34;,&#34;community_id&#34;:null,&#34;updated_at&#34;:&#34;2025-10-08T00:55:12.897172&#34;},{&#34;content&#34;:&#34;This is a test news article.&#34;,&#34;title&#34;:&#34;Test News&#34;,&#34;category&#34;:&#34;test_category&#34;,&#34;source_url&#34;:&#34;https://example.com/test-news&#34;,&#34;user_email_list&#34;:&#34;[]&#34;,&#34;likes&#34;:0,&#34;created_at&#34;:&#34;2025-10-08T00:55:43.916418&#34;,&#34;user_email&#34;:&#34;teste@teste.com&#34;,&#34;id&#34;:6,&#34;tags&#34;:&#34;test_tag&#34;,&#34;social_media_url&#34;:&#34;https://example.com/testnews&#34;,&#34;community_id&#34;:null,&#34;updated_at&#34;:&#34;2025-10-08T00:55:43.916557&#34;},{&#34;content&#34;:&#34;This is a test news article.&#34;,&#34;title&#34;:&#34;Test News&#34;,&#34;category&#34;:&#34;test_category&#34;,&#34;source_url&#34;:&#34;https://example.com/test-news&#34;,&#34;user_email_list&#34;:&#34;[]&#34;,&#34;likes&#34;:0,&#34;created_at&#34;:&#34;2025-10-08T00:55:44.649661&#34;,&#34;user_email&#34;:&#34;teste@teste.com&#34;,&#34;id&#34;:7,&#34;tags&#34;:&#34;test_tag&#34;,&#34;social_media_url&#34;:&#34;https://example.com/testnews&#34;,&#34;community_id&#34;:null,&#34;updated_at&#34;:&#34;2025-10-08T00:55:44.649800&#34;},{&#34;content&#34;:&#34;This is a test news article.&#34;,&#34;title&#34;:&#34;Test News&#34;,&#34;category&#34;:&#34;test_category&#34;,&#34;source_url&#34;:&#34;https://example.com/test-news&#34;,&#34;user_email_list&#34;:&#34;[]&#34;,&#34;likes&#34;:0,&#34;created_at&#34;:&#34;2025-10-08T00:56:09.541201&#34;,&#34;user_email&#34;:&#34;teste@teste.com&#34;,&#34;id&#34;:8,&#34;tags&#34;:&#34;test_tag&#34;,&#34;social_media_url&#34;:&#34;https://example.com/testnews&#34;,&#34;community_id&#34;:null,&#34;updated_at&#34;:&#34;2025-10-08T00:56:09.541338&#34;},{&#34;content&#34;:&#34;This is a test news article.&#34;,&#34;title&#34;:&#34;Test News&#34;,&#34;category&#34;:&#34;test_category&#34;,&#34;source_url&#34;:&#34;https://example.com/test-news&#34;,&#34;user_email_list&#34;:&#34;[]&#34;,&#34;likes&#34;:0,&#34;created_at&#34;:&#34;2025-10-08T01:30:54.053821&#34;,&#34;user_email&#34;:&#34;teste@teste.com&#34;,&#34;id&#34;:9,&#34;tags&#34;:&#34;test_tag&#34;,&#34;social_media_url&#34;:&#34;https://example.com/testnews&#34;,&#34;community_id&#34;:null,&#34;updated_at&#34;:&#34;2025-10-08T01:30:54.053984&#34;},{&#34;content&#34;:&#34;This is a test news article.&#34;,&#34;title&#34;:&#34;Test News&#34;,&#34;category&#34;:&#34;test_category&#34;,&#34;source_url&#34;:&#34;https://example.com/test-news&#34;,&#34;user_email_list&#34;:&#34;[]&#34;,&#34;likes&#34;:0,&#34;created_at&#34;:&#34;2025-10-08T01:31:08.083956&#34;,&#34;user_email&#34;:&#34;teste@teste.com&#34;,&#34;id&#34;:10,&#34;tags&#34;:&#34;test_tag&#34;,&#34;social_media_url&#34;:&#34;https://example.com/testnews&#34;,&#34;community_id&#34;:null,&#34;updated_at&#34;:&#34;2025-10-08T01:31:08.084091&#34;},{&#34;content&#34;:&#34;This is a test news article.&#34;,&#34;title&#34;:&#34;Test News&#34;,&#34;category&#34;:&#34;test_category&#34;,&#34;source_url&#34;:&#34;https://example.com/test-news&#34;,&#34;user_email_list&#34;:&#34;[]&#34;,&#34;likes&#34;:0,&#34;created_at&#34;:&#34;2025-10-08T01:32:23.705992&#34;,&#34;user_email&#34;:&#34;teste@teste.com&#34;,&#34;id&#34;:11,&#34;tags&#34;:&#34;test_tag&#34;,&#34;social_media_url&#34;:&#34;https://example.com/testnews&#34;,&#34;community_id&#34;:null,&#34;updated_at&#34;:&#34;2025-10-08T01:32:23.706128&#34;},{&#34;content&#34;:&#34;This is a test news article.&#34;,&#34;title&#34;:&#34;Test News&#34;,&#34;category&#34;:&#34;test_category&#34;,&#34;source_url&#34;:&#34;https://example.com/test-news&#34;,&#34;user_email_list&#34;:&#34;[]&#34;,&#34;likes&#34;:0,&#34;created_at&#34;:&#34;2025-10-08T01:33:33.917925&#34;,&#34;user_email&#34;:&#34;teste@teste.com&#34;,&#34;id&#34;:12,&#34;tags&#34;:&#34;test_tag&#34;,&#34;social_media_url&#34;:&#34;https://example.com/testnews&#34;,&#34;community_id&#34;:null,&#34;updated_at&#34;:&#34;2025-10-08T01:33:33.918056&#34;},{&#34;content&#34;:&#34;This is a test news article.&#34;,&#34;title&#34;:&#34;Test News&#34;,&#34;category&#34;:&#34;test_category&#34;,&#34;source_url&#34;:&#34;https://example.com/test-news&#34;,&#34;user_email_list&#34;:&#34;[]&#34;,&#34;likes&#34;:0,&#34;created_at&#34;:&#34;2025-10-08T01:55:57.528017&#34;,&#34;user_email&#34;:&#34;teste@teste.com&#34;,&#34;id&#34;:13,&#34;tags&#34;:&#34;test_tag&#34;,&#34;social_media_url&#34;:&#34;https://example.com/testnews&#34;,&#34;community_id&#34;:null,&#34;updated_at&#34;:&#34;2025-10-08T01:55:57.528290&#34;}]} 
                             </p>
                             <button class="copy__snippet">&#10063;</button>
                         </details>
@@ -1361,7 +1859,7 @@
                             </div>
                             <div class="endpoint__testcaseLabel">
                                 <span>
-                                    py_news_server::get_news_with_authentication::try_get_with_authentication
+                                    py_news_server::news_authenticated::get_news::status_code_is_200
                                 </span>
                                 
                                 
@@ -1378,13 +1876,260 @@
             
             
 
-            <div class="endpoint" id="endpoint_5">
-                <input type="checkbox" class="endpoint__checkbox" id="chck_5" />
-                <label class="endpoint__title" for="chck_5">
+            <div class="endpoint" id="endpoint_7">
+                <input type="checkbox" class="endpoint__checkbox" id="chck_7" />
+                <label class="endpoint__title" for="chck_7">
                     <span class="endpoint__url">
-                        <img data-anchor="endpoint_5" class="copy__link_anchor_url" src="https://scanapi.s3.us-east-2.amazonaws.com/assets/images/icons/link.svg">
+                        <img data-anchor="endpoint_7" class="copy__link_anchor_url" src="https://scanapi.s3.us-east-2.amazonaws.com/assets/images/icons/link.svg">
+                        <span class="http_method">POST</span> 
+                        <span class="endpoint__request_node_name">create_news</span>
+                    </span>
+                    <span class="endpoint__titleInfo">
+                        200
+                        <span class="endpoint__status endpoint__status--P">
+                            P
+                        </span>
+                    </span>
+                </label>
+    
+                <div class="endpoint__content">
+                    <section class="endpoint__request">
+                        <h3>Request</h3>
+                        <p>Full URL: <a href="http://localhost:8000/api/news"> http://localhost:8000/api/news</a></p>
+    
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Header
+                                    </th>
+                                    <th>
+                                        Value
+                                    </th>
+                                </tr>
+                            </thead>
+    
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        host
+                                    </td>
+                                    <td class="wordbreak">
+                                        localhost:8000
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        accept
+                                    </td>
+                                    <td class="wordbreak">
+                                        */*
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        accept-encoding
+                                    </td>
+                                    <td class="wordbreak">
+                                        gzip, deflate
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        connection
+                                    </td>
+                                    <td class="wordbreak">
+                                        keep-alive
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        user-agent
+                                    </td>
+                                    <td class="wordbreak">
+                                        python-httpx/0.27.2
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        authorization
+                                    </td>
+                                    <td class="wordbreak">
+                                        Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VybmFtZSIsImV4cCI6MTc1OTg4OTgxNn0.baYuukh28o5U-KMRQn-S-gL9N77IkQfXh6PCkjRBOWc
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        user-email
+                                    </td>
+                                    <td class="wordbreak">
+                                        teste@teste.com
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        content-length
+                                    </td>
+                                    <td class="wordbreak">
+                                        213
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        content-type
+                                    </td>
+                                    <td class="wordbreak">
+                                        application/json
+                                    </td>
+                                </tr>
+                                
+                            </tbody>
+                        </table>
+                        
+    
+                        
+    
+                        <details>
+                            <summary>cURL</summary>
+                            <pre>curl -X POST -H &#34;host: localhost:8000&#34; -H &#34;accept: */*&#34; -H &#34;accept-encoding: gzip, deflate&#34; -H &#34;connection: keep-alive&#34; -H &#34;user-agent: python-httpx/0.27.2&#34; -H &#34;authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VybmFtZSIsImV4cCI6MTc1OTg4OTgxNn0.baYuukh28o5U-KMRQn-S-gL9N77IkQfXh6PCkjRBOWc&#34; -H &#34;user-email: teste@teste.com&#34; -H &#34;content-length: 213&#34; -H &#34;content-type: application/json&#34; -d &#39;{&#34;title&#34;: &#34;Test News&#34;, &#34;content&#34;: &#34;This is a test news article.&#34;, &#34;category&#34;: &#34;test_category&#34;, &#34;tags&#34;: &#34;test_tag&#34;, &#34;source_url&#34;: &#34;https://example.com/test-news&#34;, &#34;social_media_url&#34;: &#34;https://example.com/testnews&#34;}&#39; http://localhost:8000/api/news --compressed</pre>
+                            <button class="copy__snippet">&#10063;</button>
+                        </details>
+                    </section>
+    
+                    <section class="endpoint__response">
+                        <h3>Response</h3>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        status code
+                                    </td>
+                                    <td class="wordbreak">
+                                        200
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        response time
+                                    </td>
+                                    <td class="wordbreak">
+                                        0.011716 s
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        redirect
+                                    </td>
+                                    <td class="wordbreak">
+                                        False
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+    
+                        
+                        <details>
+                            <summary>Headers</summary>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Header
+                                        </th>
+                                        <th>
+                                            Value
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            date
+                                        </td>
+                                        <td class="wordbreak">
+                                            Wed, 08 Oct 2025 01:56:57 GMT
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            server
+                                        </td>
+                                        <td class="wordbreak">
+                                            uvicorn
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            content-length
+                                        </td>
+                                        <td class="wordbreak">
+                                            24
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            content-type
+                                        </td>
+                                        <td class="wordbreak">
+                                            application/json
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                
+                            </table>
+                        </details>
+    
+                        <details>
+                            <summary>Content</summary>
+                            <p class="json-body">
+                                 {&#34;status&#34;:&#34;News Criada&#34;} 
+                            </p>
+                            <button class="copy__snippet">&#10063;</button>
+                        </details>
+                        
+                    </section>
+    
+                    <section class="endpoint__tests">
+                        <h3>Tests</h3>
+                        <div class="endpoint__testcase">
+                            <div class="endpoint__testcaseStatus">
+                                <strong class="endpoint__testcase-passed">
+                                    [PASSED]
+                                </strong>
+                            </div>
+                            <div class="endpoint__testcaseLabel">
+                                <span>
+                                    py_news_server::news_authenticated::create_news::status_code_is_200
+                                </span>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                    </section>
+                </div>
+            </div>
+            
+            
+            
+            
+            
+            
+
+            <div class="endpoint" id="endpoint_8">
+                <input type="checkbox" class="endpoint__checkbox" id="chck_8" />
+                <label class="endpoint__title" for="chck_8">
+                    <span class="endpoint__url">
+                        <img data-anchor="endpoint_8" class="copy__link_anchor_url" src="https://scanapi.s3.us-east-2.amazonaws.com/assets/images/icons/link.svg">
                         <span class="http_method">GET</span> 
-                        <span class="endpoint__request_node_name">get_news_without_authentication</span>
+                        <span class="endpoint__request_node_name">get_news</span>
                     </span>
                     <span class="endpoint__titleInfo">
                         401
@@ -1484,7 +2229,7 @@
                                         response time
                                     </td>
                                     <td class="wordbreak">
-                                        0.00507 s
+                                        0.004683 s
                                     </td>
                                 </tr>
                                 <tr>
@@ -1518,7 +2263,7 @@
                                             date
                                         </td>
                                         <td class="wordbreak">
-                                            Tue, 07 Oct 2025 02:45:29 GMT
+                                            Wed, 08 Oct 2025 01:56:57 GMT
                                         </td>
                                     </tr>
                                 </tbody>
@@ -1586,245 +2331,12 @@
                             </div>
                             <div class="endpoint__testcaseLabel">
                                 <span>
-                                    py_news_server::get_news_without_authentication::try_get_without_authentication
+                                    py_news_server::news_unauthenticated::get_news::status_code_is_401
                                 </span>
                                 
                                 
                             </div>
                         </div>
-                        
-                    </section>
-                </div>
-            </div>
-            
-            
-            
-            
-            
-            
-
-            <div class="endpoint" id="endpoint_6">
-                <input type="checkbox" class="endpoint__checkbox" id="chck_6" />
-                <label class="endpoint__title" for="chck_6">
-                    <span class="endpoint__url">
-                        <img data-anchor="endpoint_6" class="copy__link_anchor_url" src="https://scanapi.s3.us-east-2.amazonaws.com/assets/images/icons/link.svg">
-                        <span class="http_method">POST</span> 
-                        <span class="endpoint__request_node_name">create_news_with_authentication</span>
-                    </span>
-                    <span class="endpoint__titleInfo">
-                        200
-                        <span class="endpoint__status endpoint__status--P">
-                            P
-                        </span>
-                    </span>
-                </label>
-    
-                <div class="endpoint__content">
-                    <section class="endpoint__request">
-                        <h3>Request</h3>
-                        <p>Full URL: <a href="http://localhost:8000/api/news"> http://localhost:8000/api/news</a></p>
-    
-                        
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>
-                                        Header
-                                    </th>
-                                    <th>
-                                        Value
-                                    </th>
-                                </tr>
-                            </thead>
-    
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        host
-                                    </td>
-                                    <td class="wordbreak">
-                                        localhost:8000
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        accept
-                                    </td>
-                                    <td class="wordbreak">
-                                        */*
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        accept-encoding
-                                    </td>
-                                    <td class="wordbreak">
-                                        gzip, deflate
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        connection
-                                    </td>
-                                    <td class="wordbreak">
-                                        keep-alive
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        user-agent
-                                    </td>
-                                    <td class="wordbreak">
-                                        python-httpx/0.27.2
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        authorization
-                                    </td>
-                                    <td class="wordbreak">
-                                        SENSITIVE_INFORMATION
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        user-email
-                                    </td>
-                                    <td class="wordbreak">
-                                        teste@teste.com
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        content-length
-                                    </td>
-                                    <td class="wordbreak">
-                                        213
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        content-type
-                                    </td>
-                                    <td class="wordbreak">
-                                        application/json
-                                    </td>
-                                </tr>
-                                
-                            </tbody>
-                        </table>
-                        
-    
-                        
-    
-                        <details>
-                            <summary>cURL</summary>
-                            <pre>curl -X POST -H &#34;host: localhost:8000&#34; -H &#34;accept: */*&#34; -H &#34;accept-encoding: gzip, deflate&#34; -H &#34;connection: keep-alive&#34; -H &#34;user-agent: python-httpx/0.27.2&#34; -H &#34;authorization: SENSITIVE_INFORMATION&#34; -H &#34;user-email: teste@teste.com&#34; -H &#34;content-length: 213&#34; -H &#34;content-type: application/json&#34; -d &#39;{&#34;title&#34;: &#34;Test News&#34;, &#34;content&#34;: &#34;This is a test news article.&#34;, &#34;category&#34;: &#34;test_category&#34;, &#34;tags&#34;: &#34;test_tag&#34;, &#34;source_url&#34;: &#34;https://example.com/test-news&#34;, &#34;social_media_url&#34;: &#34;https://example.com/testnews&#34;}&#39; http://localhost:8000/api/news --compressed</pre>
-                            <button class="copy__snippet">&#10063;</button>
-                        </details>
-                    </section>
-    
-                    <section class="endpoint__response">
-                        <h3>Response</h3>
-                        <table>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        status code
-                                    </td>
-                                    <td class="wordbreak">
-                                        200
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        response time
-                                    </td>
-                                    <td class="wordbreak">
-                                        0.01367 s
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        redirect
-                                    </td>
-                                    <td class="wordbreak">
-                                        False
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-    
-                        
-                        <details>
-                            <summary>Headers</summary>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>
-                                            Header
-                                        </th>
-                                        <th>
-                                            Value
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            date
-                                        </td>
-                                        <td class="wordbreak">
-                                            Tue, 07 Oct 2025 02:45:29 GMT
-                                        </td>
-                                    </tr>
-                                </tbody>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            server
-                                        </td>
-                                        <td class="wordbreak">
-                                            uvicorn
-                                        </td>
-                                    </tr>
-                                </tbody>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            content-length
-                                        </td>
-                                        <td class="wordbreak">
-                                            24
-                                        </td>
-                                    </tr>
-                                </tbody>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            content-type
-                                        </td>
-                                        <td class="wordbreak">
-                                            application/json
-                                        </td>
-                                    </tr>
-                                </tbody>
-                                
-                            </table>
-                        </details>
-    
-                        <details>
-                            <summary>Content</summary>
-                            <p class="json-body">
-                                 {&#34;status&#34;:&#34;News Criada&#34;} 
-                            </p>
-                            <button class="copy__snippet">&#10063;</button>
-                        </details>
-                        
-                    </section>
-    
-                    <section class="endpoint__tests">
-                        <h3>Tests</h3>
                         <div class="endpoint__testcase">
                             <div class="endpoint__testcaseStatus">
                                 <strong class="endpoint__testcase-passed">
@@ -1833,7 +2345,7 @@
                             </div>
                             <div class="endpoint__testcaseLabel">
                                 <span>
-                                    py_news_server::create_news_with_authentication::try_create_news_with_authentication
+                                    py_news_server::news_unauthenticated::get_news::body_detail_not_authenticated
                                 </span>
                                 
                                 
@@ -1850,13 +2362,13 @@
             
             
 
-            <div class="endpoint" id="endpoint_7">
-                <input type="checkbox" class="endpoint__checkbox" id="chck_7" />
-                <label class="endpoint__title" for="chck_7">
+            <div class="endpoint" id="endpoint_9">
+                <input type="checkbox" class="endpoint__checkbox" id="chck_9" />
+                <label class="endpoint__title" for="chck_9">
                     <span class="endpoint__url">
-                        <img data-anchor="endpoint_7" class="copy__link_anchor_url" src="https://scanapi.s3.us-east-2.amazonaws.com/assets/images/icons/link.svg">
+                        <img data-anchor="endpoint_9" class="copy__link_anchor_url" src="https://scanapi.s3.us-east-2.amazonaws.com/assets/images/icons/link.svg">
                         <span class="http_method">POST</span> 
-                        <span class="endpoint__request_node_name">create_news_without_authentication</span>
+                        <span class="endpoint__request_node_name">create_news</span>
                     </span>
                     <span class="endpoint__titleInfo">
                         401
@@ -1972,7 +2484,7 @@
                                         response time
                                     </td>
                                     <td class="wordbreak">
-                                        0.004763 s
+                                        0.005504 s
                                     </td>
                                 </tr>
                                 <tr>
@@ -2006,7 +2518,7 @@
                                             date
                                         </td>
                                         <td class="wordbreak">
-                                            Tue, 07 Oct 2025 02:45:30 GMT
+                                            Wed, 08 Oct 2025 01:56:58 GMT
                                         </td>
                                     </tr>
                                 </tbody>
@@ -2074,7 +2586,21 @@
                             </div>
                             <div class="endpoint__testcaseLabel">
                                 <span>
-                                    py_news_server::create_news_without_authentication::try_create_news_without_authentication
+                                    py_news_server::news_unauthenticated::create_news::status_code_is_401
+                                </span>
+                                
+                                
+                            </div>
+                        </div>
+                        <div class="endpoint__testcase">
+                            <div class="endpoint__testcaseStatus">
+                                <strong class="endpoint__testcase-passed">
+                                    [PASSED]
+                                </strong>
+                            </div>
+                            <div class="endpoint__testcaseLabel">
+                                <span>
+                                    py_news_server::news_unauthenticated::create_news::body_detail_not_authenticated
                                 </span>
                                 
                                 
@@ -2091,10 +2617,10 @@
         <div class="summary__tests summary__tests--passed">
             <h3 class="summary__tests-title">Tests Summary</h3>
             <div class="summary__tests-results">
-                <span><strong>PASSED:</strong> 6</span>
+                <span><strong>PASSED:</strong> 13</span>
                 <span><strong>FAILURES:</strong> 0</span>
                 <span><strong>ERRORS:</strong> 0</span>
-                <span><strong>Total Time:</strong> 0:00:03.338687</span>
+                <span><strong>Total Time:</strong> 0:00:04.163994</span>
             </div>
         </div>
     </div>

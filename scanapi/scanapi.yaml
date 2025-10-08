@@ -8,8 +8,8 @@ endpoints:
       - name: healthcheck
         path: healthcheck
         tests:
-          - name: check
-            assert: ${{ response.status_code == 200 and response.json()["status"] == "healthy" and response.json()["version"] == "2.0.0" }}
+          - !include tests/status_code_is_200.yaml
+          - !include tests/body_healthcheck_status_healthy.yaml
       - name: create_community
         path: authentication/create_community
         method: POST
@@ -28,45 +28,8 @@ endpoints:
             assert: ${{ response.status_code == 200 }}
         vars:
           access_token: ${{ response.json()["access_token"] }}
-      - name: get_news_with_authentication
-        path: news
-        headers:
-          Authorization: Bearer ${access_token}
-          user-email: "teste@teste.com"
-        tests:
-          - name: try_get_with_authentication
-            assert: ${{ response.status_code == 200 }}
-      - name: get_news_without_authentication
-        path: news
-        tests:
-          - name: try_get_without_authentication
-            assert: ${{ response.status_code == 401 }}
-      - name: create_news_with_authentication
-        path: news
-        method: POST
-        headers:
-          Authorization: Bearer ${access_token}
-          user-email: "teste@teste.com"
-        body:
-          title: "Test News"
-          content: "This is a test news article."
-          category: "test_category"
-          tags: "test_tag"
-          source_url: "https://example.com/test-news"
-          social_media_url: "https://example.com/testnews"
-        tests:
-          - name: try_create_news_with_authentication
-            assert: ${{ response.status_code == 200 }}
-      - name: create_news_without_authentication
-        path: news
-        method: POST
-        body:
-          title: "Test News"
-          content: "This is a test news article."
-          category: "test_category"
-          tags: "test_tag"
-          source_url: "https://example.com/test-news"
-          social_media_url: "https://example.com/testnews"
-        tests:
-          - name: try_create_news_without_authentication
-            assert: ${{ response.status_code == 401 }}
+    endpoints:
+      - !include libraries_authenticated.yaml
+      - !include libraries_unauthenticated.yaml
+      - !include news_authenticated.yaml
+      - !include news_unauthenticated.yaml

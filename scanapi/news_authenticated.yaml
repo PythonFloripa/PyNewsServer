@@ -1,0 +1,20 @@
+name: news_authenticated
+path: news
+headers:
+  Authorization: Bearer ${access_token}
+  user-email: teste@teste.com
+requests:
+  - name: get_news
+    tests:
+      - !include tests/status_code_is_200.yaml
+  - name: create_news
+    method: POST
+    body:
+      title: "Test News"
+      content: "This is a test news article."
+      category: "test_category"
+      tags: "test_tag"
+      source_url: "https://example.com/test-news"
+      social_media_url: "https://example.com/testnews"
+    tests:
+      - !include tests/status_code_is_200.yaml

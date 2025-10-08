@@ -1,0 +1,9 @@
+name: libraries_unauthenticated
+path: libraries
+requests:
+  - name: get_libraries
+    params:
+      language: Python
+    tests:
+      - !include tests/status_code_is_401.yaml
+      - !include tests/body_detail_not_authenticated.yaml

@@ -1,0 +1,2 @@
+name: body_healthcheck_healthy
+assert: ${{ response.json()["status"] == "healthy" and response.json()["version"] == "2.0.0" }}

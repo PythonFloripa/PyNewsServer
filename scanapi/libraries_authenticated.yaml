@@ -1,0 +1,12 @@
+name: libraries_authenticated
+path: libraries
+headers:
+  Authorization: Bearer ${access_token}
+  user-email: teste@teste.com
+requests:
+  - name: get_libraries
+    params:
+      language: Python
+    tests:
+      - !include tests/status_code_is_200.yaml
+      - !include tests/body_is_array.yaml
