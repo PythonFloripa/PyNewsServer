@@ -11,6 +11,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from app.main import app
 from app.services.auth import hash_password
 from app.services.database.models.communities import Community
+from app.services.encryption import encrypt_email
 
 # from app.main import get_db_session
 
@@ -73,16 +74,6 @@ async def async_client(test_app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
         transport=ASGITransport(app=test_app), base_url="http://test"
     ) as client:
         yield client
-
-
-from app.services.encryption import encrypt_email
-
-
-class UnencryptedCommunityCredentials:
-    username: str = "community_username_unencrypted"
-    email: str = "community_name_unencrypte@test.com"
-    password: str = "community_password_unencrypte"
-    hashed_password: str = hash_password(password)
 
 
 class CommunityCredentials:
