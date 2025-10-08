@@ -17,3 +17,4 @@ class Community(SQLModel, table=True):
         default_factory=datetime.now,
         sa_column_kwargs={"onupdate": datetime.now},
     )
+    role: str = Field(default="user")  # user or admin

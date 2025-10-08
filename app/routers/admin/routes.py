@@ -22,13 +22,15 @@ async def create_admin(session: AsyncSession):
     hashed_password = auth.hash_password(password)
     community = DBCommunity(
         username=ADMIN_USER,
-        email="ADMIN_USER",
+        email="ADMIN_USER@mail.com",
         password=hashed_password,
         role="admin",
     )
-    session.add(community)
-    await session.commit()
-    await session.refresh(community)
+    await create_community(session=session, community=community)
+
+    # session.add(community)
+    # await session.commit()
+    # await session.refresh(community)
     return {"msg": "Admin successfully created"}
 
 
