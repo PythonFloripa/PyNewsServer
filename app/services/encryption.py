@@ -23,5 +23,5 @@ def encrypt_email(email: str) -> str:
 
 def decrypt_email(encrypted_email: str) -> str:
     """Descriptografa uma string de e-mail."""
-    print("decipher email called")
-    return cipher.decrypt(encrypted_email).decode()
+    decrypted_email = cipher.decrypt(encrypted_email).decode()
+    return decrypted_email

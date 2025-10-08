@@ -40,6 +40,10 @@ class CommunityInDB(Community):
     role: str
 
 
+class CommunityPostResponse(BaseModel):
+    status: str = "Community Criado"
+
+
 class News(BaseModel):
     title: str
     content: str

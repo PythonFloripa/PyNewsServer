@@ -2,10 +2,10 @@ import os
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, status
-from pydantic import BaseModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.routers.authentication import get_current_active_community
+from app.schemas import CommunityPostResponse
 from app.services import auth
 from app.services.database.models import Community as DBCommunity  # Precisa?
 from app.services.database.orm.community import create_community
@@ -28,14 +28,7 @@ async def create_admin(session: AsyncSession):
     )
     await create_community(session=session, community=community)
 
-    # session.add(community)
-    # await session.commit()
-    # await session.refresh(community)
     return {"msg": "Admin successfully created"}
-
-
-class CommunityPostResponse(BaseModel):
-    status: str = "Community Criado"
 
 
 def setup():
