@@ -20,12 +20,16 @@ async def get_community_by_username(
 
     # Executa a declaração na sessão e retorna o primeiro resultado
     result = await session.exec(statement)
-    community = result.first()
-    # add tratamento de descriptografia do email
-    if community is not None:
-        community.email = decrypt_email(community.email)
+    community_result = result.first()
 
-    return community
+    # add tratamento de descriptografia do email
+    if community_result is not None:
+        # evitar mutação direta e cache
+        community = community_result.model_copy()
+        community.email = decrypt_email(community.email)
+    else:
+        community = None
+    return community  # add community not found treatment?
 
 
 async def create_community(

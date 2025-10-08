@@ -75,6 +75,16 @@ async def async_client(test_app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
         yield client
 
 
+from app.services.encryption import encrypt_email
+
+
+class UnencryptedCommunityCredentials:
+    username: str = "community_username_unencrypted"
+    email: str = "community_name_unencrypte@test.com"
+    password: str = "community_password_unencrypte"
+    hashed_password: str = hash_password(password)
+
+
 class CommunityCredentials:
     username: str = "community_username"
     email: str = "community_name@test.com"
@@ -86,7 +96,7 @@ class CommunityCredentials:
 async def community(session: AsyncSession):
     community = Community(
         username=CommunityCredentials.username,
-        email=CommunityCredentials.email,
+        email=encrypt_email(CommunityCredentials.email),
         password=CommunityCredentials.hashed_password,
     )
     session.add(community)
