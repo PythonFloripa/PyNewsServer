@@ -30,6 +30,10 @@ class SubscribeLibraryResponse(BaseModel):
     status: str = "Subscribed in libraries successfully"
 
 
+class LibraryRequestResponse(BaseModel):
+    status: str = "Library requested successfully"
+
+
 def setup():
     router = APIRouter(prefix="/libraries", tags=["libraries"])
 
@@ -163,7 +167,7 @@ def setup():
 
     @router.post(
         "/request",
-        response_model=LibraryResponse,
+        response_model=LibraryRequestResponse,
         status_code=status.HTTP_200_OK,
         summary="Request a library",
         description="Request a library to follow",
@@ -189,7 +193,7 @@ def setup():
                 library_request, request.app.db_session_factory
             )
 
-            return LibraryResponse()
+            return LibraryRequestResponse()
         except HTTPException as e:
             raise e
         except Exception as e:
