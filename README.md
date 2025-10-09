@@ -272,6 +272,10 @@ poetry run pytest --cov=app
 poetry run pytest tests/test_auth.py
 ```
 
+##### Requisitos para utilizar [ScanAPI](https://scanapi.dev/)
+
+- Criar .env.test seguindo o exemplo em .env.example com as credenciais necessárias
+
 #### Linting e Formatação
 
 ```bash
