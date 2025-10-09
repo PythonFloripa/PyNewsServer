@@ -11,6 +11,10 @@ help: ## Mostra esta mensagem de ajuda
 	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(GREEN)%-15s$(NC) %s\n", $$1, $$2}'
 
+install: ## Instala dependências com Poetry
+	@echo "$(YELLOW)Instalando dependências...$(NC)"
+	poetry install
+
 build: ## Constrói as imagens Docker
 	@echo "$(YELLOW)Construindo imagens Docker...$(NC)"
 	docker-compose build
@@ -26,26 +30,9 @@ down: ## Para os serviços
 logs: ## Mostra os logs dos serviços
 	docker-compose logs -f pynews-api
 
-test: ## Executa os testes
-	@echo "$(YELLOW)Executando testes...$(NC)"
-	poetry run pytest
-
-test-cov: ## Executa os testes com coverage
-	@echo "$(YELLOW)Executando testes com coverage...$(NC)"
-	poetry run pytest --cov=app --cov-report=html
-
-lint: ## Verifica o código com ruff
-	@echo "$(YELLOW)Verificando código...$(NC)"
-	poetry run ruff check .
-
-format: ## Formata o código
-	@echo "$(YELLOW)Formatando código...$(NC)"
-	poetry run ruff format .
-
-clean: ## Remove containers, volumes e imagens
-	@echo "$(YELLOW)Limpando containers e volumes...$(NC)"
-	docker-compose down -v --remove-orphans
-	docker system prune -f
+restart: ## Reinicia os serviços
+	@echo "$(YELLOW)Reiniciando serviços...$(NC)"
+	docker-compose restart
 
 dev: build up ## Ambiente de desenvolvimento completo
 	@echo "$(GREEN)Ambiente de desenvolvimento iniciado!$(NC)"
@@ -56,28 +43,40 @@ prod: ## Inicia em modo produção
 	@echo "$(YELLOW)Iniciando em modo produção...$(NC)"
 	docker-compose -f docker-compose.yaml up -d
 
-restart: ## Reinicia os serviços
-	@echo "$(YELLOW)Reiniciando serviços...$(NC)"
-	docker-compose restart
+test: ## Executa os testes
+	@echo "$(YELLOW)Executando testes...$(NC)"
+	poetry run pytest
+
+test-cov: ## Executa os testes com coverage
+	@echo "$(YELLOW)Executando testes com coverage...$(NC)"
+	poetry run pytest --cov=app --cov-report=html
+
+docker-test:
+	docker exec -e PYTHONPATH=/app $(API_CONTAINER_NAME) pytest -s --cov-report=term-missing --cov-report html --cov-report=xml --cov=app tests/
+
+scanapi-test: # Executa testes com scanapi e gera report acessado na porta 8080 no path {url}/scanapi-report.html
+	docker-compose run --rm scanapi-tests
+
+lint: ## Verifica o código com ruff
+	@echo "$(YELLOW)Verificando código...$(NC)"
+	poetry run ruff check .
+
+format: ## Formata o código
+	@echo "$(YELLOW)Formatando código...$(NC)"
+	poetry run ruff format .
 
 health: ## Verifica o health check da API
 	@echo "$(YELLOW)Verificando saúde da API...$(NC)"
 	curl -f http://localhost:8000/api/healthcheck || echo "API não está respondendo"
 
-install: ## Instala dependências com Poetry
-	@echo "$(YELLOW)Instalando dependências...$(NC)"
-	poetry install
-
 shell: ## Entra no shell do container
 	docker-compose exec pynews-api bash
+
+clean: ## Remove containers, volumes e imagens
+	@echo "$(YELLOW)Limpando containers e volumes...$(NC)"
+	docker-compose down -v --remove-orphans
+	docker system prune -f
 
 setup: install build up ## Setup completo do projeto
 	@echo "$(GREEN)Setup completo realizado!$(NC)"
 	@echo "$(GREEN)Acesse: http://localhost:8000/docs$(NC)"
-
-
-docker/test:
-	docker exec -e PYTHONPATH=/app $(API_CONTAINER_NAME) pytest -s --cov-report=term-missing --cov-report html --cov-report=xml --cov=app tests/
-
-scanapi-test:
-	docker-compose run --rm scanapi-tests
