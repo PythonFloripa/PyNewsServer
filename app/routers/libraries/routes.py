@@ -193,7 +193,7 @@ def setup():
                 library_request, request.app.db_session_factory
             )
 
-            return LibraryResponse()
+            return LibraryRequestResponse()
         except HTTPException as e:
             raise e
         except Exception as e:
