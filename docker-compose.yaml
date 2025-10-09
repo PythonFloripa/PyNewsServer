@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   pynews-api:
@@ -23,6 +23,36 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  scanapi-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: scanapi-test
+    container_name: scanapi-tests
+    env_file:
+      - .env.test
+    environment:
+      - BASE_URL=http://pynews-server:8000
+    volumes:
+      - report-data:/server/scanapi
+    depends_on:
+      pynews-api:
+        condition: service_healthy
+    command: poetry run scanapi run
+
+  scanapi-report-viewer:
+    image: nginx:alpine
+    container_name: scanapi-report-viewer
+    ports:
+      - "8080:80"
+    volumes:
+      - report-data:/usr/share/nginx/html:ro
+    depends_on:
+      - scanapi-tests
+
+volumes:
+  report-data:
 
 networks:
   default:

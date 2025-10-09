@@ -1,9 +1,9 @@
 endpoints:
   - name: py_news_server
-    path: http://localhost:8000/api
+    path: ${BASE_URL}/api
     vars:
-      community_username: "username"
-      community_password: "123Asd!@#"
+      community_username: ${USERNAME_TEST}
+      community_password: ${PASSWORD_TEST}
     requests:
       - name: healthcheck
         path: healthcheck

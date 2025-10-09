@@ -78,3 +78,6 @@ setup: install build up ## Setup completo do projeto
 
 docker/test:
 	docker exec -e PYTHONPATH=/app $(API_CONTAINER_NAME) pytest -s --cov-report=term-missing --cov-report html --cov-report=xml --cov=app tests/
+
+scanapi-test:
+	docker-compose run --rm scanapi-tests
