@@ -17,7 +17,7 @@ services:
       - ENCRYPTION_KEY=r0-QKv5qACJNFRqy2cNZCsfZ_zVvehlC-v8zDJb--EI=
       - ADMIN_USER=admin
       - ADMIN_PASSWORD=admin
-      - ADMIN_EMAIL = ADMIN_USER@mail.com
+      - ADMIN_EMAIL=ADMIN_USER@mail.com
       - ALGORITHM=HS256
       - ACCESS_TOKEN_EXPIRE_MINUTES=20
     restart: unless-stopped
