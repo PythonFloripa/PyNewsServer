@@ -111,6 +111,16 @@ sequenceDiagram
    - Documentação Swagger: http://localhost:8000/docs
    - Health Check: http://localhost:8000/api/healthcheck
 
+### 🗄️ Banco de Dados SQLite
+
+O projeto utiliza SQLite como banco de dados com as seguintes características:
+- **Persistência**: Dados armazenados em `./data/pynewsdb.db`
+- **Async Support**: Utiliza `aiosqlite` para operações assíncronas
+- **ORM**: SQLModel para mapeamento objeto-relacional
+- **Auto-inicialização**: Banco e tabelas criados automaticamente na primeira execução
+
+Para mais detalhes sobre configuração do SQLite, consulte: [docs/sqlite-setup.md](docs/sqlite-setup.md)
+
 ## 🧩 Configuração Inicial
 
 ### ▶️ Guia de Execução para Desenvolvimento

@@ -2,11 +2,19 @@ import logging
 import os
 from typing import AsyncGenerator
 
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlmodel import Field, SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.services.database import models  # noqa F401
+from app.services.database.models import (  # noqa F401
+    Community,
+    Library,
+    LibraryRequest,
+    News,
+    Subscription,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +40,7 @@ AsyncSessionLocal = async_sessionmaker(
     engine,
     class_=AsyncSession,
     expire_on_commit=False,
-    #echo=True,  # expire_on_commit=False é importante!
+    # echo=True,  # expire_on_commit=False é importante!
 )
 
 
@@ -59,24 +67,57 @@ async def init_db():
     """
     Inicializa o banco de dados:
     1. Verifica se o arquivo do banco de dados existe.
-    2. Se não existir, cria o arquivo e todas as tabelas definidas
-    nos modelos SQLModel nos imports e acima.
+    2. Conecta ao banco e verifica se as tabelas existem.
+    3. Cria tabelas faltantes se necessário.
     """
-    if not os.path.exists(DATABASE_FILE):
-        logger.info(
-            f"Arquivo de banco de dados '{DATABASE_FILE}' não encontrado."
-            f"Criando novo banco de dados e tabelas."
-        )
+    try:
+        # Cria o diretório do banco se não existir
+        db_dir = os.path.dirname(DATABASE_FILE)
+        if db_dir and not os.path.exists(db_dir):
+            os.makedirs(db_dir, exist_ok=True)
+            logger.info(f"Diretório criado: {db_dir}")
+
+        # Verifica se o arquivo existe
+        db_exists = os.path.exists(DATABASE_FILE)
+
+        if not db_exists:
+            logger.info(
+                f"Arquivo de banco de dados '{DATABASE_FILE}' não encontrado. "
+                f"Criando novo banco de dados."
+            )
+        else:
+            logger.info(f"Conectando ao banco de dados '{DATABASE_FILE}'.")
+
+        # Sempre tenta criar as tabelas (create_all é idempotente)
+        # Se as tabelas já existem, o SQLModel não fará nada
         async with engine.begin() as conn:
             # SQLModel.metadata.create_all é síncrono e precisa
             # ser executado via run_sync
             await conn.run_sync(SQLModel.metadata.create_all)
-        logger.info("Tabelas criadas com sucesso.")
-    else:
-        logger.info(
-            f"Arquivo de banco de dados '{DATABASE_FILE}'"
-            f"já existe. Conectando."
-        )
+
+        # Verifica quais tabelas foram criadas/existem
+        async with AsyncSessionLocal() as session:
+            result = await session.execute(
+                text(
+                    "SELECT name FROM sqlite_master WHERE type='table' "
+                    "ORDER BY name"
+                )
+            )
+            tables = [row[0] for row in result.fetchall()]
+
+        if not db_exists:
+            message = "Banco de dados e tabelas criados com sucesso."
+            logger.info(message)
+        else:
+            message = "Estrutura do banco de dados verificada."
+            logger.info(message)
+
+        tables_message = f"Tabelas disponíveis: {', '.join(tables)}"
+        logger.info(tables_message)
+
+    except Exception as e:
+        logger.error(f"Erro ao inicializar banco de dados: {e}")
+        raise
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
