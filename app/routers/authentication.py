@@ -72,7 +72,7 @@ def setup():
 
     # Teste
 
-    @router.post("/create_commumity")
+    @router.post("/create_community")
     async def create_community(request: Request):
         password = "123Asd!@#"
         hashed_password = auth.hash_password(password)
