@@ -34,9 +34,14 @@ class Community(BaseModel):
     email: str
 
 
-# Extends Community Class with hashed password
+# Extends Community Class with hashed password and role
 class CommunityInDB(Community):
     password: str
+    role: str
+
+
+class CommunityPostResponse(BaseModel):
+    status: str = "Community Criado"
 
 
 class News(BaseModel):

@@ -17,7 +17,7 @@ async def test_authentication_token_endpoint(
     # 1. Teste de login com credenciais válidas
     # O OAuth2PasswordRequestForm espera 'username' e 'password'
     form_data = {
-        "username": community.username,
+        "username": CommunityCredentials.username,
         "password": CommunityCredentials.password,
     }
 
@@ -62,7 +62,7 @@ async def test_community_me_with_valid_token(
     # 1. Obter um token de acesso primeiro
     form_data = {
         "grant_type": "password",
-        "username": community.username,
+        "username": CommunityCredentials.username,
         "password": CommunityCredentials.password,
     }
     token_response = await async_client.post(
@@ -80,8 +80,8 @@ async def test_community_me_with_valid_token(
     # Validar a resposta
     assert response.status_code == status.HTTP_200_OK
     user_data = response.json()
-    assert user_data["username"] == community.username
-    assert user_data["email"] == community.email
+    assert user_data["username"] == CommunityCredentials.username
+    assert user_data["email"] == CommunityCredentials.email
     # Assegurar que a senha não é retornada na resposta
     assert "password" not in user_data
 
