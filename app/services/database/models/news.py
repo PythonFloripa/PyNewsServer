@@ -49,6 +49,7 @@ class News(SQLModel, table=True):
     user_email_list: str = Field(default="[]")
     social_media_url: str
     likes: int = Field(default=0)
+    publish: bool = Field(default=False)
 
     # Chaves estrangeiras
     community_id: Optional[int] = Field(

@@ -294,8 +294,8 @@ async def test_news_integration(
 async def test_put_news_endpoint(
     session: AsyncSession,
     async_client: AsyncClient,
-    community: Community,
     valid_auth_headers: Mapping[str, str],
+    news_list: list,
 ):
     session.add_all(news_list)
     await session.commit()
@@ -304,35 +304,46 @@ async def test_put_news_endpoint(
     result = await session.exec(statement)
     stored_news = result.first()
     assert stored_news is not None
+    assert stored_news.publish is False
+
+    data: dict = {
+        "title": "updated title",
+        "content": "updated content",
+        "category": "updated_category",
+        "user_email": "updated_email@test.com",
+        "source_url": "https://updated_url.com",
+        "tags": "test_tag_updated",
+        "social_media_url": "https://updated_social_media_url.com",
+    }
 
     response = await async_client.put(
         "/api/news",
         params={
-            "title": "updated title",
-            "content": "updated content",
-            "category": "updated_category",
-            "user_email": "updated_email@test.com",
-            "source_url": "https://updated_url.com",
-            "tags": "test_tag_updated",
-            "user_email_list": "updated_email@test.com",
-            "social_media_url": "https://updated_social_media_url.com",
-            "likes": 42,
+            "id": stored_news.id,
+            "title": data["title"],
+            "content": data["content"],
+            "category": data["category"],
+            "user_email": data["user_email"],
+            "source_url": data["source_url"],
+            "tags": data["tags"],
+            "social_media_url": data["social_media_url"],
         },
         headers=valid_auth_headers,
         json={"publish": True},
     )
-    data = response.json()
     assert response.status_code == status.HTTP_200_OK
-    assert data["tittle"] == "updated title"
-    assert data["content"] == "updated content"
-    assert data["category"] == "updated_category"
-    assert data["user_email"] == "updated_email@test.com"
-    assert data["source_url"] == "https://updated_url.com"
-    assert data["tags"] == "test_tag_updated"
-    assert data["user_email_list"] == "updated_email@test.com"
-    assert data["social_media_url"] == "https://updated_social_media_url.com"
-    assert data["likes"] == 42
-    assert data["publish"] is True
+
+    statement = select(News).where(News.title == data["title"])
+    result = await session.exec(statement)
+    stored_news = result.first()
+    assert stored_news is not None
+    assert stored_news.content == data["content"]
+    assert stored_news.category == data["category"]
+    assert stored_news.user_email == data["user_email"]
+    assert stored_news.source_url == data["source_url"]
+    assert stored_news.tags == data["tags"]
+    assert stored_news.social_media_url == data["social_media_url"]
+    assert stored_news.publish
 
 
 @pytest.mark.asyncio
