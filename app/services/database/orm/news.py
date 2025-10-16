@@ -42,7 +42,20 @@ async def get_news_by_query_params(
 
     statement = select(News).where(*filters)
     results = await session.exec(statement)
-    return results.all()
+    return list(results.all())
+
+
+async def update_news(session: AsyncSession, news: dict) -> None:
+    statement = select(News).where(News.id == news["id"])
+    results = await session.exec(statement)
+    news_item = results.first()
+    if news_item:
+        for key, value in news.items():
+            if key != "id" and value is not None:
+                setattr(news_item, key, value)
+        session.add(news_item)
+        await session.commit()
+        await session.refresh(news_item)
 
 
 async def like_news(

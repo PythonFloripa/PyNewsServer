@@ -72,21 +72,22 @@ async def test_insert_news(
     await session.commit()
     statement = select(News).where(News.title == "Test news")
     result = await session.exec(statement)
-    found_news = result.first()
-    assert found_news is not None
-    assert found_news.title == news_list[0].title
-    assert found_news.content == news_list[0].content
-    assert found_news.category == news_list[0].category
-    assert found_news.user_email == news_list[0].user_email
-    assert found_news.source_url == news_list[0].source_url
-    assert found_news.tags == news_list[0].tags
-    assert found_news.social_media_url == news_list[0].social_media_url
-    assert found_news.likes == 0
-    assert found_news.community_id == community.id
-    assert isinstance(found_news.created_at, datetime)
-    assert isinstance(found_news.updated_at, datetime)
-    assert found_news.created_at <= datetime.now()
-    assert found_news.updated_at >= found_news.created_at
+    stored_news = result.first()
+    assert stored_news is not None
+    assert stored_news.title == news_list[0].title
+    assert stored_news.content == news_list[0].content
+    assert stored_news.category == news_list[0].category
+    assert stored_news.user_email == news_list[0].user_email
+    assert stored_news.source_url == news_list[0].source_url
+    assert stored_news.tags == news_list[0].tags
+    assert stored_news.social_media_url == news_list[0].social_media_url
+    assert stored_news.likes == 0
+    assert stored_news.community_id == community.id
+    assert isinstance(stored_news.created_at, datetime)
+    assert isinstance(stored_news.updated_at, datetime)
+    assert stored_news.created_at <= datetime.now()
+    assert stored_news.updated_at >= stored_news.created_at
+    assert stored_news.publish is False
 
 
 @pytest.mark.asyncio
@@ -221,6 +222,7 @@ async def test_get_news_by_id(
     statement = select(News).where(News.title == "Test news")
     result = await session.exec(statement)
     stored_news = result.first()
+    assert stored_news is not None
 
     response = await async_client.get(
         "/api/news",
@@ -289,6 +291,62 @@ async def test_news_integration(
 
 
 @pytest.mark.asyncio
+async def test_put_news_endpoint(
+    session: AsyncSession,
+    async_client: AsyncClient,
+    valid_auth_headers: Mapping[str, str],
+    news_list: list,
+):
+    session.add_all(news_list)
+    await session.commit()
+
+    statement = select(News).where(News.title == "Test news")
+    result = await session.exec(statement)
+    stored_news = result.first()
+    assert stored_news is not None
+    assert stored_news.publish is False
+
+    data: dict = {
+        "title": "updated title",
+        "content": "updated content",
+        "category": "updated_category",
+        "user_email": "updated_email@test.com",
+        "source_url": "https://updated_url.com",
+        "tags": "test_tag_updated",
+        "social_media_url": "https://updated_social_media_url.com",
+    }
+
+    response = await async_client.put(
+        "/api/news",
+        params={
+            "id": stored_news.id,
+            "title": data["title"],
+            "content": data["content"],
+            "category": data["category"],
+            "user_email": data["user_email"],
+            "source_url": data["source_url"],
+            "tags": data["tags"],
+            "social_media_url": data["social_media_url"],
+        },
+        headers=valid_auth_headers,
+        json={"publish": True},
+    )
+    assert response.status_code == status.HTTP_200_OK
+
+    statement = select(News).where(News.title == data["title"])
+    result = await session.exec(statement)
+    stored_news = result.first()
+    assert stored_news is not None
+    assert stored_news.content == data["content"]
+    assert stored_news.category == data["category"]
+    assert stored_news.user_email == data["user_email"]
+    assert stored_news.source_url == data["source_url"]
+    assert stored_news.tags == data["tags"]
+    assert stored_news.social_media_url == data["social_media_url"]
+    assert stored_news.publish
+
+
+@pytest.mark.asyncio
 async def test_news_likes_endpoint(
     session: AsyncSession,
     async_client: AsyncClient,
@@ -325,6 +383,7 @@ async def test_news_likes_endpoint(
     statement = select(News).where(News.title == news_data["title"])
     result = await session.exec(statement)
     stored_news = result.first()
+    assert stored_news is not None
     assert stored_news.likes == 1
     assert stored_news.user_email_list == f"['{encode_email(emails[0])}']"
 
@@ -336,6 +395,7 @@ async def test_news_likes_endpoint(
     statement = select(News).where(News.title == news_data["title"])
     result = await session.exec(statement)
     stored_news = result.first()
+    assert stored_news is not None
     assert stored_news.likes == 2
     assert (
         stored_news.user_email_list
@@ -351,6 +411,7 @@ async def test_news_likes_endpoint(
     statement = select(News).where(News.title == news_data["title"])
     result = await session.exec(statement)
     stored_news = result.first()
+    assert stored_news is not None
     assert stored_news.likes == 1
     assert stored_news.user_email_list == f"['{encode_email(emails[1])}']"
 
@@ -362,5 +423,6 @@ async def test_news_likes_endpoint(
     statement = select(News).where(News.title == news_data["title"])
     result = await session.exec(statement)
     stored_news = result.first()
+    assert stored_news is not None
     assert stored_news.likes == 0
     assert stored_news.user_email_list == "[]"
