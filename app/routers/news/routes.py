@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 import app.services.database.orm.news as orm_news
 from app.routers.authentication import get_current_active_community
-from app.schemas import News
+from app.schemas import News, NewsPublishStatus
 from app.services.database.models import Community as DBCommunity
 from app.services.limiter import limiter
 
@@ -16,13 +16,17 @@ SECRET_KEY = os.getenv("SECRET_KEY", "default_fallback_key")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 
 
-class NewsPostResponse(BaseModel):
+class NewsCreateResponse(BaseModel):
     status: str = "News Criada"
 
 
 class NewsGetResponse(BaseModel):
     status: str = "Lista de News Obtida"
     news_list: list = []
+
+
+class NewsUpdateResponse(BaseModel):
+    status: str = "News Atualizada"
 
 
 class NewsLikeResponse(BaseModel):
@@ -39,7 +43,7 @@ def setup():
 
     @router.post(
         "",
-        response_model=NewsPostResponse,
+        response_model=NewsCreateResponse,
         status_code=status.HTTP_200_OK,
         summary="News endpoint",
         description="Creates news and returns a confirmation message",
@@ -61,7 +65,7 @@ def setup():
         await orm_news.create_news(
             session=request.app.db_session_factory, news=news_dict
         )
-        return NewsPostResponse()
+        return NewsCreateResponse()
 
     @router.get(
         "",
@@ -92,6 +96,48 @@ def setup():
             tags=tags,
         )
         return NewsGetResponse(news_list=news_list)
+
+    @router.put(
+        "",
+        response_model=NewsGetResponse,
+        status_code=status.HTTP_200_OK,
+        summary="PUT News",
+        description="Updates news by query params and set publish value",
+    )
+    @limiter.limit("60/minute")
+    async def put_news(
+        request: Request,
+        current_community: Annotated[
+            DBCommunity, Depends(get_current_active_community)
+        ],
+        publish_status: NewsPublishStatus,
+        id: str | None = None,
+        title: str | None = None,
+        content: str | None = None,
+        category: str | None = None,
+        user_email: str = str(Header(..., alias="user-email")),
+        source_url: str | None = None,
+        tags: str | None = None,
+        social_media_url: str | None = None,
+    ):
+        """
+        Get News endpoint that retrieves news filtered by user and query params.
+        """
+        news: dict = {
+            "id": id,
+            "title": title,
+            "content": content,
+            "category": category,
+            "user_email": user_email,
+            "source_url": source_url,
+            "tags": tags,
+            "social_media_url": social_media_url,
+            "publish": publish_status.publish,
+        }
+        await orm_news.update_news(
+            session=request.app.db_session_factory, news=news
+        )
+        return NewsUpdateResponse()
 
     @router.post(
         path="/{news_id}/like",

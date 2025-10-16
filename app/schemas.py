@@ -54,6 +54,10 @@ class News(BaseModel):
     likes: int = 0
 
 
+class NewsPublishStatus(BaseModel):
+    publish: bool = False
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str
