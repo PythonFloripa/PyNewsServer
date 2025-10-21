@@ -70,25 +70,6 @@ def setup():
             return None
         return found_community
 
-    # Teste
-
-    @router.post("/create_community")
-    async def create_community(request: Request):
-        password = "123Asd!@#"
-        hashed_password = auth.hash_password(password)
-        community = DBCommunity(
-            username="username",
-            email="username@test.com",
-            password=hashed_password,
-        )
-        session: AsyncSession = request.app.db_session_factory
-        session.add(community)
-        await session.commit()
-        await session.refresh(community)
-        return {"msg": "succes? "}
-
-    # Teste
-
     @router.post("/token", response_model=Token)
     @limiter.limit("60/minute")
     async def login_for_access_token(

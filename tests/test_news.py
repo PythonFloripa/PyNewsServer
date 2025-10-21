@@ -10,6 +10,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.routers.news.routes import encode_email
 from app.services.database.models import Community, News
+from tests.conftest import CommunityCredentials
 
 
 @pytest_asyncio.fixture
@@ -19,7 +20,7 @@ async def news_list(community: Community) -> list[News]:
             title="Test news",
             content="A nova versão do Python traz melhorias ...",
             category="release",
-            user_email=community.email,
+            user_email=CommunityCredentials.email,
             source_url="https://python.org/news",
             tags="programming",
             social_media_url="https://linkedin.com/pythonista",
@@ -29,7 +30,7 @@ async def news_list(community: Community) -> list[News]:
             title="Test category",
             content="A nova versão do Python traz melhorias ...",
             category="test_category",
-            user_email=community.email,
+            user_email=CommunityCredentials.email,
             source_url="https://python.org/news",
             tags="programming",
             social_media_url="https://linkedin.com/pythonista",
@@ -50,7 +51,7 @@ async def news_list(community: Community) -> list[News]:
             title="Test id",
             content="FastAPI agora suporta novas funcionalidades ...",
             category="release",
-            user_email=community.email,
+            user_email=CommunityCredentials.email,
             source_url="https://fastapi.com/news",
             tags="programming",
             social_media_url="https://twitter.com/fastapi",
@@ -132,7 +133,7 @@ async def test_insert_news_via_post_news_endpoint(
     assert stored_news.title == news_data["title"]
     assert stored_news.content == news_data["content"]
     assert stored_news.category == news_data["category"]
-    assert stored_news.user_email == community.email
+    assert stored_news.user_email == CommunityCredentials.email
     assert stored_news.source_url == news_data["source_url"]
     assert stored_news.tags == news_data["tags"]
     assert stored_news.social_media_url == news_data["social_media_url"]
@@ -277,7 +278,7 @@ async def test_news_integration(
     assert data["news_list"][0]["title"] == news_data["title"]
     assert data["news_list"][0]["content"] == news_data["content"]
     assert data["news_list"][0]["category"] == news_data["category"]
-    assert data["news_list"][0]["user_email"] == community.email
+    assert data["news_list"][0]["user_email"] == CommunityCredentials.email
     assert data["news_list"][0]["source_url"] == news_data["source_url"]
     assert data["news_list"][0]["tags"] == news_data["tags"]
     assert (
