@@ -3,6 +3,7 @@ from typing import Annotated, List
 from fastapi import APIRouter, Header, HTTPException, Request, status
 from fastapi.params import Depends
 from pydantic import BaseModel
+from services.encryption import encrypt_email
 
 from app.routers.authentication import get_current_active_community
 from app.schemas import Library as LibrarySchema
@@ -141,7 +142,7 @@ def setup():
 
             subscriptions = [
                 Subscription(
-                    user_email=user_email,
+                    user_email=encrypt_email(user_email),
                     tags=body.tags,
                     library_id=id,
                     community_id=current_community.id,

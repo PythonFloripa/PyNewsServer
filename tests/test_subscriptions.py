@@ -2,6 +2,7 @@ from typing import Mapping
 
 import pytest
 from httpx import AsyncClient
+from services.encryption import encrypt_email
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -111,9 +112,12 @@ async def test_post_subscribe_endpoint(
     assert response.status_code == 200
     assert response.json()["status"] == "Subscribed in libraries successfully"
 
+    encripted_email = encrypt_email(valid_auth_headers["user-email"])
+
     statement = select(Subscription).where(
-        Subscription.user_email == community.email
+        Subscription.user_email == encripted_email
     )
+
     result = await session.exec(statement)
     created_subscriptions = result.all()
 
