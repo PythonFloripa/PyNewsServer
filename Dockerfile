@@ -59,5 +59,6 @@ RUN poetry install --no-root --no-interaction
 WORKDIR $PROJECT_PATH
 COPY app app
 COPY tests tests
+COPY scripts scripts
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--lifespan", "on"]
