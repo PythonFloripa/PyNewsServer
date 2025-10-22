@@ -3,7 +3,6 @@ from typing import Annotated, List
 from fastapi import APIRouter, Header, HTTPException, Request, status
 from fastapi.params import Depends
 from pydantic import BaseModel
-from services.encryption import encrypt_email
 
 from app.routers.authentication import get_current_active_community
 from app.schemas import Library as LibrarySchema
@@ -20,6 +19,7 @@ from app.services.database.orm.library import (
 )
 from app.services.database.orm.library_request import insert_library_request
 from app.services.database.orm.subscription import upsert_multiple_subscription
+from app.services.encryption import encrypt_email
 from app.services.limiter import limiter
 
 

@@ -22,7 +22,7 @@ from app.services.encryption import encrypt_email
 # --- Configurações do Banco de Dados em Memória para Testes ---
 # Usamos engine e AsyncSessionLocal apenas para os testes.
 # Isso garante que os testes são isolados e usam o banco de dados em memória.
-TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+TEST_DATABASE_URL = "sqlite+aiosqlite:////tmp/pynewsdb.db"
 os.environ["ADMIN_USER"] = "ADMIN_USER"
 os.environ["ADMIN_PASSWORD"] = "ADMIN_PASSWORD"
 os.environ["ADMIN_EMAIL"] = "ADMIN_EMAIL"
