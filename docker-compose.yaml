@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   pynews-api:
     build:
@@ -42,14 +40,6 @@ services:
       "
     restart: "no"
 
-volumes:
-  sqlite_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./data
-
   scanapi-tests:
     build:
       context: .
@@ -57,7 +47,7 @@ volumes:
       target: scanapi-test
     container_name: scanapi-tests
     env_file:
-      - .env.test
+      - .env
     environment:
       - BASE_URL=http://pynews-server:8000
     volumes:
@@ -79,6 +69,12 @@ volumes:
 
 volumes:
   report-data:
+  sqlite_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data
 
 networks:
   default:

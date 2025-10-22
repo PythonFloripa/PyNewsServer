@@ -16,15 +16,15 @@ from app.services.limiter import limiter
 
 
 async def create_admin(session: AsyncSession):
-    ADMIN_USER = os.getenv("ADMIN_USER")
-    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
-    ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
+    ADMIN_USER = os.getenv("ADMIN_USER", "")
+    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
+    ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "")
     password = ADMIN_PASSWORD
     hashed_password = auth.hash_password(password)
     community = DBCommunity(
         username=ADMIN_USER,
         email=ADMIN_EMAIL,
-        password=hashed_password,
+        password=str(hashed_password),
         role="admin",
     )
     await create_community(session=session, community=community)
