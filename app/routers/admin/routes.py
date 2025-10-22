@@ -24,7 +24,7 @@ async def create_admin(session: AsyncSession):
     community = DBCommunity(
         username=ADMIN_USER,
         email=ADMIN_EMAIL,
-        password=str(hashed_password),
+        password=hashed_password,
         role="admin",
     )
     await create_community(session=session, community=community)
