@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 import app.services.database.orm.news as orm_news
 from app.routers.authentication import get_current_active_community
-from app.schemas import News, NewsPublishStatus
+from app.schemas import News, NewsWithPublishStatus
 from app.services.database.models import Community as DBCommunity
 from app.services.limiter import limiter
 
@@ -39,10 +39,10 @@ def encode_email(email: str) -> str:
 
 
 def setup():
-    router = APIRouter(prefix="/news", tags=["news"])
+    router: APIRouter = APIRouter(prefix="/news", tags=["news"])
 
     @router.post(
-        "",
+        path="",
         response_model=NewsCreateResponse,
         status_code=status.HTTP_200_OK,
         summary="News endpoint",
@@ -98,44 +98,29 @@ def setup():
         return NewsGetResponse(news_list=news_list)
 
     @router.put(
-        "",
-        response_model=NewsGetResponse,
+        path="/{news_id}",
         status_code=status.HTTP_200_OK,
         summary="PUT News",
-        description="Updates news by query params and set publish value",
+        description="Updates news and sets publish value",
     )
-    @limiter.limit("60/minute")
+    @limiter.limit(limit_value="60/minute")
     async def put_news(
         request: Request,
         current_community: Annotated[
             DBCommunity, Depends(get_current_active_community)
         ],
-        publish_status: NewsPublishStatus,
-        id: str | None = None,
-        title: str | None = None,
-        content: str | None = None,
-        category: str | None = None,
-        user_email: str = str(Header(..., alias="user-email")),
-        source_url: str | None = None,
-        tags: str | None = None,
-        social_media_url: str | None = None,
+        news_id: str,
+        news: NewsWithPublishStatus,
+        user_email: str = Header(..., alias="user-email"),
     ):
         """
         Get News endpoint that retrieves news filtered by user and query params.
         """
-        news: dict = {
-            "id": id,
-            "title": title,
-            "content": content,
-            "category": category,
-            "user_email": user_email,
-            "source_url": source_url,
-            "tags": tags,
-            "social_media_url": social_media_url,
-            "publish": publish_status.publish,
-        }
         await orm_news.update_news(
-            session=request.app.db_session_factory, news=news
+            session=request.app.db_session_factory,
+            news=news.__dict__,
+            news_id=news_id,
+            user_email=user_email,
         )
         return NewsUpdateResponse()
 
@@ -146,11 +131,11 @@ def setup():
         summary="News like endpoint",
         description="Allows user to like a news item",
     )
-    @limiter.limit("60/minute")
+    @limiter.limit(limit_value="60/minute")
     async def post_like(
         request: Request,
         current_community: Annotated[
-            DBCommunity, Depends(get_current_active_community)
+            DBCommunity, Depends(dependency=get_current_active_community)
         ],
         news_id: str,
         user_email: str = Header(..., alias="user-email"),
@@ -173,7 +158,7 @@ def setup():
         summary="News undo like endpoint",
         description="Allows user to undo a like to a news item",
     )
-    @limiter.limit("60/minute")
+    @limiter.limit(limit_value="60/minute")
     async def delete_like(
         request: Request,
         current_community: Annotated[
