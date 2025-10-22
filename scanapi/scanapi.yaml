@@ -1,0 +1,29 @@
+endpoints:
+  - name: py_news_server
+    path: ${BASE_URL}/api
+    vars:
+      admin_user: ${ADMIN_USER}
+      admin_password: ${ADMIN_PASSWORD}
+    requests:
+      - name: healthcheck
+        path: healthcheck
+        tests:
+          - !include tests/status_code_is_200.yaml
+          - !include tests/healthcheck/body_status_healthy.yaml
+      - name: login_for_access_token
+        path: authentication/token
+        method: POST
+        headers:
+          Content-Type: application/x-www-form-urlencoded
+        body:
+          username: ${admin_user}
+          password: ${admin_password}
+        tests:
+          - !include tests/status_code_is_200.yaml
+        vars:
+          access_token: ${{ response.json()["access_token"] if response.status_code == 200 else "" }}
+    endpoints:
+      - !include libraries_authenticated.yaml
+      - !include libraries_unauthenticated.yaml
+      - !include news_authenticated.yaml
+      - !include news_unauthenticated.yaml

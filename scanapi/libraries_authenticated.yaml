@@ -1,0 +1,48 @@
+name: libraries_authenticated
+path: libraries
+headers:
+  Authorization: Bearer ${access_token}
+  user-email: teste@teste.com
+requests:
+  - name: get_libraries
+    params:
+      language: Python
+    tests:
+      - !include tests/status_code_is_200.yaml
+      - !include tests/body_is_array.yaml
+  - name: create_library
+    method: POST
+    body:
+      library_name: "Flask"
+      news:
+        - tag: "updates"
+          description: "News about Python"
+      logo: "https://example.com/python-logo.png"
+      version: "1.0.0"
+      release_date: "2023-01-01"
+      releases_doc_url: "https://example.com/python-release-notes.txt"
+      fixed_release_url: "https://example.com/python-fixed-release.txt"
+      language: "Python"
+    tests:
+      - !include tests/status_code_is_200.yaml
+      - !include tests/libraries/body_status_created.yaml
+  - name: subscribe_to_library
+    path: subscribe
+    method: POST
+    body:
+      tags:
+        - updates
+      libraries_list:
+        - Flask
+    tests:
+      - !include tests/status_code_is_200.yaml
+      - !include tests/libraries/body_status_subscribed.yaml
+  - name: request_library_news
+    path: request
+    method: POST
+    body:
+      library_name: "Flask"
+      library_home_page: "https://flask.palletsprojects.com/en/2.3.x/"
+    tests:
+      - !include tests/status_code_is_200.yaml
+      - !include tests/libraries/body_status_requested.yaml

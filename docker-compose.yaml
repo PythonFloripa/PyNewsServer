@@ -40,7 +40,35 @@ services:
       "
     restart: "no"
 
+  scanapi-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: scanapi-test
+    container_name: scanapi-tests
+    env_file:
+      - .env
+    environment:
+      - BASE_URL=http://pynews-server:8000
+    volumes:
+      - report-data:/server/scanapi
+    depends_on:
+      pynews-api:
+        condition: service_healthy
+    command: poetry run scanapi run
+
+  scanapi-report-viewer:
+    image: nginx:alpine
+    container_name: scanapi-report-viewer
+    ports:
+      - "8080:80"
+    volumes:
+      - report-data:/usr/share/nginx/html:ro
+    depends_on:
+      - scanapi-tests
+
 volumes:
+  report-data:
   sqlite_data:
     driver: local
     driver_opts:

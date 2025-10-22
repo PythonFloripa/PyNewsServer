@@ -1,0 +1,2 @@
+name: body_status_subscribed
+assert: ${{ response.json()["status"] == "Subscribed in libraries successfully" }}

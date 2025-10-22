@@ -1,0 +1,2 @@
+name: body_status_requested
+assert: ${{ response.json()["status"] == "Library requested successfully" }}

@@ -62,3 +62,20 @@ COPY tests tests
 COPY scripts scripts
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--lifespan", "on"]
+
+
+FROM builder-base AS scanapi-test
+
+WORKDIR $PYSETUP_PATH
+
+RUN poetry install --no-root --no-interaction
+
+WORKDIR $PROJECT_PATH
+
+COPY poetry.lock pyproject.toml ./
+
+COPY app app
+COPY scanapi scanapi
+COPY scanapi.conf ./
+
+CMD ["poetry", "run", "scanapi", "run"]
