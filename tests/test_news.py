@@ -423,3 +423,35 @@ async def test_news_likes_endpoint(
     assert stored_news is not None
     assert stored_news.likes == 0
     assert stored_news.user_email_list == "[]"
+
+
+@pytest.mark.asyncio
+async def test_news_endpoint_blocks_unauthorized_access(
+    async_client: AsyncClient,
+):
+    news_data = {
+        "title": "Test News",
+        "content": "Test news content.",
+        "category": "test_category",
+        "tags": "test_tag",
+        "source_url": "https://example.com/test-news",
+        "social_media_url": "https://test.com/test_news",
+    }
+    response: Response = await async_client.post(
+        url="/api/news", json=news_data
+    )
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    response: Response = await async_client.get(url="/api/news")
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    response: Response = await async_client.put(
+        url="/api/news/1", json=news_data
+    )
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    response: Response = await async_client.post(url="/api/news/1/like")
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    response: Response = await async_client.delete(url="/api/news/1/like")
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
