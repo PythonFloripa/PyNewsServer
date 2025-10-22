@@ -26,6 +26,8 @@ class News(SQLModel, table=True):
             for this news.
         likes (int): Number of likes this news article has received.
             Defaults to 0.
+        publish (bool): Indicates whether the news is published or not.
+            Defaults to False.
 
         community_id (Optional[int]): Foreign key to the associated community
             (communities.id).

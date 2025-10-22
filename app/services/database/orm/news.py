@@ -16,7 +16,6 @@ async def create_news(session: AsyncSession, news: dict) -> None:
         source_url=news["source_url"],
         tags=news["tags"] or "",
         social_media_url=news["social_media_url"] or "",
-        likes=news["likes"],
     )
     session.add(_news)
     await session.commit()
@@ -45,8 +44,15 @@ async def get_news_by_query_params(
     return list(results.all())
 
 
-async def update_news(session: AsyncSession, news: dict) -> None:
-    statement = select(News).where(News.id == news["id"])
+async def update_news(
+    session: AsyncSession,
+    news: dict,
+    news_id: str,
+    user_email: str,
+) -> None:
+    statement = select(News).where(
+        News.id == news_id and News.user_email == user_email
+    )
     results = await session.exec(statement)
     news_item = results.first()
     if news_item:
