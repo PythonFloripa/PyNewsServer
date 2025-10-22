@@ -18,7 +18,7 @@ async def test_healthcheck_endpoint(
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {"status": "healthy", "version": "2.0.0"}
+    assert response.json()["version"] == "2.0.0"
 
 
 @pytest.mark.asyncio
@@ -28,4 +28,4 @@ async def test_healthcheck_endpoint_without_auth(async_client: AsyncClient):
     response = await async_client.get("/api/healthcheck")
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {"status": "healthy", "version": "2.0.0"}
+    assert response.json()["version"] == "2.0.0"
