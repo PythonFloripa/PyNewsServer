@@ -6,6 +6,7 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.services.database.models import Community, LibraryRequest
+from tests.conftest import CommunityCredentials
 
 
 @pytest.mark.asyncio
@@ -56,5 +57,5 @@ async def test_post_libraries_endpoint(
     created_request = result.first()
 
     assert created_request is not None
-    assert created_request.user_email == community.email
+    assert created_request.user_email == CommunityCredentials.email
     assert created_request.library_home_page == "http://teste.com/"

@@ -19,6 +19,7 @@ from app.services.database.orm.library import (
 )
 from app.services.database.orm.library_request import insert_library_request
 from app.services.database.orm.subscription import upsert_multiple_subscription
+from app.services.encryption import encrypt_email
 from app.services.limiter import limiter
 
 
@@ -145,7 +146,7 @@ def setup():
 
             subscriptions = [
                 Subscription(
-                    user_email=user_email,
+                    user_email=encrypt_email(user_email),
                     tags=body.tags,
                     library_id=id,
                     community_id=current_community.id,

@@ -4,7 +4,7 @@ from typing import Mapping
 import pytest
 import pytest_asyncio
 from fastapi import status
-from httpx import AsyncClient
+from httpx import AsyncClient, Response
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -72,21 +72,22 @@ async def test_insert_news(
     await session.commit()
     statement = select(News).where(News.title == "Test news")
     result = await session.exec(statement)
-    found_news = result.first()
-    assert found_news is not None
-    assert found_news.title == news_list[0].title
-    assert found_news.content == news_list[0].content
-    assert found_news.category == news_list[0].category
-    assert found_news.user_email == news_list[0].user_email
-    assert found_news.source_url == news_list[0].source_url
-    assert found_news.tags == news_list[0].tags
-    assert found_news.social_media_url == news_list[0].social_media_url
-    assert found_news.likes == 0
-    assert found_news.community_id == community.id
-    assert isinstance(found_news.created_at, datetime)
-    assert isinstance(found_news.updated_at, datetime)
-    assert found_news.created_at <= datetime.now()
-    assert found_news.updated_at >= found_news.created_at
+    stored_news = result.first()
+    assert stored_news is not None
+    assert stored_news.title == news_list[0].title
+    assert stored_news.content == news_list[0].content
+    assert stored_news.category == news_list[0].category
+    assert stored_news.user_email == news_list[0].user_email
+    assert stored_news.source_url == news_list[0].source_url
+    assert stored_news.tags == news_list[0].tags
+    assert stored_news.social_media_url == news_list[0].social_media_url
+    assert stored_news.likes == 0
+    assert stored_news.community_id == community.id
+    assert isinstance(stored_news.created_at, datetime)
+    assert isinstance(stored_news.updated_at, datetime)
+    assert stored_news.created_at <= datetime.now()
+    assert stored_news.updated_at >= stored_news.created_at
+    assert stored_news.publish is False
 
 
 @pytest.mark.asyncio
@@ -100,8 +101,8 @@ async def test_post_news_endpoint(
         "category": "test_category",
         "source_url": "https://example.com/test-news",
     }
-    response = await async_client.post(
-        "/api/news", headers=valid_auth_headers, json=news_data
+    response: Response = await async_client.post(
+        url="/api/news", headers=valid_auth_headers, json=news_data
     )
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {"status": "News Criada"}
@@ -221,6 +222,7 @@ async def test_get_news_by_id(
     statement = select(News).where(News.title == "Test news")
     result = await session.exec(statement)
     stored_news = result.first()
+    assert stored_news is not None
 
     response = await async_client.get(
         "/api/news",
@@ -289,6 +291,59 @@ async def test_news_integration(
 
 
 @pytest.mark.asyncio
+async def test_put_news_endpoint(
+    session: AsyncSession,
+    async_client: AsyncClient,
+    valid_auth_headers: Mapping[str, str],
+    news_list: list,
+):
+    session.add_all(news_list)
+    await session.commit()
+
+    statement = select(News).where(News.title == "Test news")
+    result = await session.exec(statement)
+    stored_news = result.first()
+    assert stored_news is not None
+    assert stored_news.publish is False
+
+    data: dict = {
+        "title": "updated title",
+        "content": "updated content",
+        "category": "updated_category",
+        "source_url": "https://updated_url.com",
+        "tags": "test_tag_updated",
+        "social_media_url": "https://updated_social_media_url.com",
+    }
+
+    response: Response = await async_client.put(
+        url=f"/api/news/{stored_news.id}",
+        headers=valid_auth_headers,
+        json={
+            "title": data["title"],
+            "content": data["content"],
+            "category": data["category"],
+            "source_url": data["source_url"],
+            "tags": data["tags"],
+            "social_media_url": data["social_media_url"],
+            "publish": True,
+        },
+    )
+    assert response.status_code == status.HTTP_200_OK
+
+    statement = select(News).where(News.title == data["title"])
+    result = await session.exec(statement)
+    stored_news = result.first()
+    assert stored_news is not None
+    assert stored_news.content == data["content"]
+    assert stored_news.category == data["category"]
+    assert stored_news.user_email == valid_auth_headers["user-email"]
+    assert stored_news.source_url == data["source_url"]
+    assert stored_news.tags == data["tags"]
+    assert stored_news.social_media_url == data["social_media_url"]
+    assert stored_news.publish
+
+
+@pytest.mark.asyncio
 async def test_news_likes_endpoint(
     session: AsyncSession,
     async_client: AsyncClient,
@@ -303,8 +358,8 @@ async def test_news_likes_endpoint(
         "source_url": "https://example.com/test-news",
         "social_media_url": "https://test.com/test_news",
     }
-    response = await async_client.post(
-        "/api/news", json=news_data, headers=valid_auth_headers
+    response: Response = await async_client.post(
+        url="/api/news", json=news_data, headers=valid_auth_headers
     )
     assert response.status_code == status.HTTP_200_OK
     statement = select(News).where(News.title == news_data["title"])
@@ -316,8 +371,8 @@ async def test_news_likes_endpoint(
     emails = ["like@test.com", "like2@test.com"]
 
     # Add likes
-    response = await async_client.post(
-        f"/api/news/{stored_news.id}/like",
+    response: Response = await async_client.post(
+        url=f"/api/news/{stored_news.id}/like",
         json={"email": emails[0]},
         headers={**valid_auth_headers, "user-email": emails[0]},
     )
@@ -325,17 +380,19 @@ async def test_news_likes_endpoint(
     statement = select(News).where(News.title == news_data["title"])
     result = await session.exec(statement)
     stored_news = result.first()
+    assert stored_news is not None
     assert stored_news.likes == 1
     assert stored_news.user_email_list == f"['{encode_email(emails[0])}']"
 
-    response = await async_client.post(
-        f"/api/news/{stored_news.id}/like",
+    response: Response = await async_client.post(
+        url=f"/api/news/{stored_news.id}/like",
         headers={**valid_auth_headers, "user-email": emails[1]},
     )
     assert response.status_code == status.HTTP_200_OK
     statement = select(News).where(News.title == news_data["title"])
     result = await session.exec(statement)
     stored_news = result.first()
+    assert stored_news is not None
     assert stored_news.likes == 2
     assert (
         stored_news.user_email_list
@@ -343,24 +400,58 @@ async def test_news_likes_endpoint(
     )
 
     # Remove likes
-    response = await async_client.delete(
-        f"/api/news/{stored_news.id}/like",
+    response: Response = await async_client.delete(
+        url=f"/api/news/{stored_news.id}/like",
         headers={**valid_auth_headers, "user-email": emails[0]},
     )
     assert response.status_code == status.HTTP_200_OK
     statement = select(News).where(News.title == news_data["title"])
     result = await session.exec(statement)
     stored_news = result.first()
+    assert stored_news is not None
     assert stored_news.likes == 1
     assert stored_news.user_email_list == f"['{encode_email(emails[1])}']"
 
-    response = await async_client.delete(
-        f"/api/news/{stored_news.id}/like",
+    response: Response = await async_client.delete(
+        url=f"/api/news/{stored_news.id}/like",
         headers={**valid_auth_headers, "user-email": emails[1]},
     )
     assert response.status_code == status.HTTP_200_OK
     statement = select(News).where(News.title == news_data["title"])
     result = await session.exec(statement)
     stored_news = result.first()
+    assert stored_news is not None
     assert stored_news.likes == 0
     assert stored_news.user_email_list == "[]"
+
+
+@pytest.mark.asyncio
+async def test_news_endpoint_blocks_unauthorized_access(
+    async_client: AsyncClient,
+):
+    news_data = {
+        "title": "Test News",
+        "content": "Test news content.",
+        "category": "test_category",
+        "tags": "test_tag",
+        "source_url": "https://example.com/test-news",
+        "social_media_url": "https://test.com/test_news",
+    }
+    response: Response = await async_client.post(
+        url="/api/news", json=news_data
+    )
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    response: Response = await async_client.get(url="/api/news")
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    response: Response = await async_client.put(
+        url="/api/news/1", json=news_data
+    )
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    response: Response = await async_client.post(url="/api/news/1/like")
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    response: Response = await async_client.delete(url="/api/news/1/like")
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED

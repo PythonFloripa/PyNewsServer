@@ -48,10 +48,13 @@ class News(BaseModel):
     title: str
     content: str
     category: str
-    tags: str | None = None
     source_url: str
+    tags: str | None = None
     social_media_url: str | None = None
-    likes: int = 0
+
+
+class NewsWithPublishStatus(News):
+    publish: bool = False
 
 
 class Token(BaseModel):
