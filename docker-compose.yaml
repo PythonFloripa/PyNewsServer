@@ -1,12 +1,30 @@
 services:
+  traefik:
+    image: traefik:v3.0
+    container_name: pynews-traefik
+    ports:
+      - "80:80"
+      - "443:443"
+      - "127.0.0.1:8080:8080"  # Dashboard only accessible locally
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik:/etc/traefik:rw
+    command:
+      - --configfile=/etc/traefik/traefik.yml
+    restart: unless-stopped
+    networks:
+      - pynews-network
+    labels:
+      - "traefik.enable=false"
+
   pynews-api:
     build:
       context: .
       dockerfile: Dockerfile
       target: development
     container_name: pynews-server
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     env_file:
       - .env
     restart: unless-stopped
@@ -23,6 +41,22 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    networks:
+      - pynews-network
+    labels:
+      - "traefik.enable=true"
+      # HTTP router (for Let's Encrypt challenge and localhost access)
+      - "traefik.http.routers.pynews-api-http.rule=Host(`www.pynews.org`) || Host(`pynews.org`) || Host(`localhost`)"
+      - "traefik.http.routers.pynews-api-http.entrypoints=web"
+      - "traefik.http.routers.pynews-api-http.priority=1"
+      # HTTPS router
+      - "traefik.http.routers.pynews-api-https.rule=Host(`www.pynews.org`) || Host(`pynews.org`)"
+      - "traefik.http.routers.pynews-api-https.entrypoints=websecure"
+      - "traefik.http.routers.pynews-api-https.tls=true"
+      - "traefik.http.routers.pynews-api-https.tls.certresolver=letsencrypt"
+
+      - "traefik.http.routers.pynews-api-https.priority=1"
+      - "traefik.http.services.pynews-api.loadbalancer.server.port=8000"
 
   sqlite-init:
     image: alpine:latest
@@ -39,6 +73,8 @@ services:
         echo 'SQLite database initialized'
       "
     restart: "no"
+    networks:
+      - pynews-network
 
   scanapi-tests:
     build:
@@ -55,17 +91,34 @@ services:
     depends_on:
       pynews-api:
         condition: service_healthy
-    command: poetry run scanapi run
+    command: ["/server/run-tests.sh"]
+    networks:
+      - pynews-network
 
   scanapi-report-viewer:
     image: nginx:alpine
     container_name: scanapi-report-viewer
-    ports:
-      - "8080:80"
+    expose:
+      - "80"
     volumes:
-      - report-data:/usr/share/nginx/html:ro
+      - report-data:/usr/share/nginx/html
     depends_on:
       - scanapi-tests
+    networks:
+      - pynews-network
+    labels:
+      - "traefik.enable=true"
+      # HTTP router
+      - "traefik.http.routers.scanapi-reports-http.rule=(Host(`www.pynews.org`) || Host(`pynews.org`)) && PathPrefix(`/reports`)"
+      - "traefik.http.routers.scanapi-reports-http.entrypoints=web"
+      - "traefik.http.routers.scanapi-reports-http.priority=50"
+      # HTTPS router  
+      - "traefik.http.routers.scanapi-reports-https.rule=(Host(`www.pynews.org`) || Host(`pynews.org`)) && PathPrefix(`/reports`)"
+      - "traefik.http.routers.scanapi-reports-https.entrypoints=websecure"
+      - "traefik.http.routers.scanapi-reports-https.tls=true"
+      - "traefik.http.routers.scanapi-reports-https.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.scanapi-reports-https.priority=50"
+      - "traefik.http.services.scanapi-reports.loadbalancer.server.port=80"
 
 volumes:
   report-data:
@@ -77,5 +130,5 @@ volumes:
       device: ./data
 
 networks:
-  default:
-    name: pynews-network
+  pynews-network:
+    driver: bridge
