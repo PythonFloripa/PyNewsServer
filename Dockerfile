@@ -78,4 +78,6 @@ COPY app app
 COPY scanapi scanapi
 COPY scanapi.conf ./
 
-CMD ["poetry", "run", "scanapi", "run"]
+RUN echo '#!/bin/bash\npoetry run scanapi run\necho "<!DOCTYPE html><html><head><title>API Test Reports</title><meta http-equiv=\"refresh\" content=\"0; url=scanapi-report.html\"></head><body><p>Redirecting to <a href=\"scanapi-report.html\">API Test Report</a>...</p></body></html>" > /server/scanapi/index.html' > /server/run-tests.sh && chmod +x /server/run-tests.sh
+
+CMD ["/server/run-tests.sh"]

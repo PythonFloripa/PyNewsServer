@@ -1,0 +1,62 @@
+# Dynamic Configuration for Traefik
+# This file can be used for additional routing rules and middleware
+
+http:
+  # Middleware definitions
+  middlewares:
+    # HTTPS redirect middleware
+    https-redirect:
+      redirectScheme:
+        scheme: https
+        permanent: true
+
+    # Security headers middleware
+    secure-headers:
+      headers:
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+          - PUT
+          - POST
+          - DELETE
+        accessControlAllowOriginList:
+          - "https://www.pynews.org"
+          - "https://pynews.org"
+        accessControlMaxAge: 100
+        hostsProxyHeaders:
+          - "X-Forwarded-Host"
+        referrerPolicy: "same-origin"
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+        sslRedirect: true
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        contentTypeNosniff: true
+        browserXssFilter: true
+        frameDeny: true
+
+    # Rate limiting middleware
+    rate-limit:
+      rateLimit:
+        burst: 100
+        period: 1m
+
+    # CORS middleware
+    cors:
+      headers:
+        accessControlAllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+        accessControlAllowHeaders:
+          - "*"
+        accessControlAllowOriginList:
+          - "https://www.pynews.org"
+          - "https://pynews.org"
+        accessControlMaxAge: 100
+        addVaryHeader: true
+
+  # Services and routers can be defined here if needed

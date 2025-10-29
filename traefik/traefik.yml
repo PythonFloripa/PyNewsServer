@@ -1,0 +1,45 @@
+# Traefik Static Configuration
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+# API and Dashboard configuration
+api:
+  dashboard: true
+  # Allow insecure access for direct dashboard access on port 8080
+  insecure: true
+
+# Providers configuration
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: "pynewsserver_pynews-network"
+  file:
+    filename: /etc/traefik/dynamic.yml
+    watch: true
+
+# Entry points configuration
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+
+# Certificate resolvers (for Let's Encrypt)
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: admin@pynews.org
+      storage: /etc/traefik/acme.json
+      httpChallenge:
+        entryPoint: web
+      # Alternative: use tlsChallenge if HTTP challenge doesn't work
+      # tlsChallenge: {}
+
+# Access logs
+accessLog: {}
+
+# Traefik logs
+log:
+  level: INFO
