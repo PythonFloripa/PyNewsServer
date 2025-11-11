@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List, Sequence, Tuple
 
 from sqlalchemy import tuple_
 from sqlmodel import select
@@ -47,3 +47,8 @@ async def upsert_multiple_subscription(
         await session.refresh(sub)
 
     return all_subs
+
+
+async def get_subscription_emails(session: AsyncSession) -> Sequence[str]:
+    result = await session.exec(select(Subscription.user_email))
+    return result.all()

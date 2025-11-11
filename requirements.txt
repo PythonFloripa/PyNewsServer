@@ -7,6 +7,7 @@ sphinxcontrib-redoc>=1.6.0
 linkify-it-py>=2.0.0
 setuptools>=68.0.0
 # --- Fim dependências actions ---
+apscheduler==3.11.0 ; python_version >= "3.12" and python_version < "4.0"
 aiosqlite==0.21.0 ; python_version >= "3.12" and python_version < "4.0"
 annotated-types==0.7.0 ; python_version >= "3.12" and python_version < "4.0"
 anyio==4.9.0 ; python_version >= "3.12" and python_version < "4.0"

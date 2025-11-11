@@ -47,7 +47,7 @@ async def test_post_libraries_endpoint(
     )
 
     assert response.status_code == 200
-    assert response.json()["status"] == "Library created successfully"
+    assert response.json()["status"] == "Library requested successfully"
 
     statement = select(LibraryRequest).where(
         LibraryRequest.library_name == body["library_name"]
